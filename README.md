@@ -4,7 +4,9 @@ Paquete global de Pi para guiar proyectos con SDD y TDD paso a paso.
 
 ## Objetivo
 
-Mantener Pi limpio y agregar un orquestador global reutilizable en cualquier carpeta. El paquete carga comandos, skills, prompts y hooks; cada proyecto guarda solo su estado local.
+Mantener Pi limpio y agregar un orquestador global reutilizable en cualquier carpeta. El paquete carga comandos, skills y hooks; cada proyecto guarda solo su estado local.
+
+Los prompts numerados quedan en `prompts/` como referencia interna del repo, pero no se registran como slash commands para evitar duplicar `/01-init` con `/pi:01-init`.
 
 ## Instalacion
 

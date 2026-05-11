@@ -27,7 +27,8 @@ Luego Pi carga el manifest `pi` de `package.json`:
 
 - `extensions/orchestrator.ts`
 - skills en `skills/*/SKILL.md`
-- prompts en `prompts/*.md`
+
+Los archivos de `prompts/` son referencia interna del repo. No se registran en el manifest para que el usuario final vea solo comandos `/pi:NN-accion` y no duplicados `/NN-accion`.
 
 ## Desarrollo con Bun
 
