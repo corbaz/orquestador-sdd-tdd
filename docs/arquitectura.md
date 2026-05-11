@@ -1,0 +1,41 @@
+# Arquitectura
+
+## Objetivo
+
+El paquete organiza un flujo SDD/TDD en Pi mediante extension, comandos, hooks, skills, prompts y persistencia minima.
+
+## Componentes
+
+### Extension principal
+
+`extensions/orchestrator.ts` registra los comandos:
+
+- `/pi:01-init`
+- `/pi:02-discover`
+- `/pi:03-propose`
+- `/pi:04-spec`
+- `/pi:05-design`
+- `/pi:06-tasks`
+
+Cada comando explica que hace, cual es el proximo paso y envia una guia visible para orientar al agente.
+
+### Hooks
+
+- `protect-secrets.ts`: bloquea secretos probables y comandos destructivos.
+- `capture-session.ts`: captura eventos simples de inicio y fin.
+- `compact-context.ts`: guarda un placeholder de resumen antes de compactar contexto.
+- `validate-workflow-step.ts`: valida el orden de comandos `/pi:*` cuando hay metadata local.
+
+### Persistencia
+
+`extensions/lib/paths.ts` define rutas globales y locales.
+
+`extensions/lib/persistence.ts` crea SQL inicial, metadata JSON y placeholders `.sqlite` para no exigir una dependencia nativa en MVP1.
+
+### Skills y prompts
+
+Los skills dan instrucciones operativas por fase. Los prompts numerados ofrecen entradas reutilizables para cada comando.
+
+## Decision MVP1
+
+La automatizacion profunda queda fuera. El valor principal es imponer una secuencia sana: entender, proponer, especificar, disenar, partir tareas y recien despues aplicar.

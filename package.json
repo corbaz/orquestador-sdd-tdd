@@ -1,0 +1,42 @@
+{
+  "name": "orquestador-sdd-tdd",
+  "version": "0.1.0",
+  "description": "Paquete global de Pi para guiar un flujo SDD/TDD con comandos, skills, prompts y hooks.",
+  "type": "module",
+  "packageManager": "bun@1.3.13",
+  "private": false,
+  "scripts": {
+    "check": "bun run check:package",
+    "check:package": "bun -e \"JSON.parse(await Bun.file('package.json').text()); console.log('package.json OK')\""
+  },
+  "keywords": [
+    "pi-package",
+    "sdd",
+    "tdd",
+    "orchestrator"
+  ],
+  "exports": {
+    ".": "./extensions/orchestrator.ts"
+  },
+  "files": [
+    "README.md",
+    "docs/",
+    "extensions/",
+    "skills/",
+    "prompts/"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/orchestrator.ts"
+    ],
+    "skills": [
+      "./skills"
+    ],
+    "prompts": [
+      "./prompts"
+    ]
+  }
+}

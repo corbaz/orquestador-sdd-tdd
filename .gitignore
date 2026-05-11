@@ -1,0 +1,9 @@
+.DS_Store
+.pi/extensions/
+.pi/orquestador-sdd-tdd/
+doc/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+node_modules/
+dist/
