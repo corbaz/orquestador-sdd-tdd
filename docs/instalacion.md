@@ -14,7 +14,7 @@
 Desde GitHub:
 
 ```bash
-pi install git:github.com/tu-usuario/orquestador-sdd-tdd
+pi install git:github.com/corbaz/orquestador-sdd-tdd
 ```
 
 Para probar desde el repo local:
@@ -50,4 +50,4 @@ El comando debe crear metadata local en `.pi/orquestador-sdd-tdd/` y mostrar el 
 
 ## Nota MVP1
 
-El paquete prioriza guia, estructura y contratos. La persistencia SQLite queda preparada por SQL y rutas estables; no requiere una dependencia nativa para arrancar.
+El paquete prioriza guia, estructura y contratos. La persistencia SQLite queda preparada por SQL y rutas estables; en MVP1 los `.sqlite` son placeholders y no se implementa un adapter SQLite real.

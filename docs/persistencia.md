@@ -29,7 +29,7 @@ SQL generado:
 
 ## Contrato MVP1
 
-El helper `ensurePersistenceFiles()` crea directorios, placeholders `.sqlite`, SQL inicial y metadata local. No abre SQLite directamente porque eso obligaria a elegir una dependencia nativa.
+El helper `ensurePersistenceFiles()` crea directorios, placeholders `.sqlite`, SQL inicial y metadata local. No abre SQLite directamente: en MVP1 no hay adapter SQLite real para evitar sumar una dependencia nativa.
 
 ## Schema inicial
 

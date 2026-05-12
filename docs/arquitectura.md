@@ -30,7 +30,7 @@ Cada comando explica que hace, cual es el proximo paso y envia una guia visible 
 
 `extensions/lib/paths.ts` define rutas globales y locales.
 
-`extensions/lib/persistence.ts` crea SQL inicial, metadata JSON y placeholders `.sqlite` para no exigir una dependencia nativa en MVP1.
+`extensions/lib/persistence.ts` crea SQL inicial, metadata JSON y placeholders `.sqlite`; el adapter SQLite real queda fuera de MVP1 para no exigir una dependencia nativa.
 
 ### Skills y prompts
 

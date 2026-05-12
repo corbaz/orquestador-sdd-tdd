@@ -13,7 +13,7 @@ Los prompts numerados quedan en `prompts/` como referencia interna del repo, per
 Con Pi instalado, instalar desde GitHub:
 
 ```bash
-pi install git:github.com/tu-usuario/orquestador-sdd-tdd
+pi install git:github.com/corbaz/orquestador-sdd-tdd
 ```
 
 Para probar localmente desde este repo:
@@ -57,4 +57,4 @@ Local por proyecto:
 <project>/.pi/orquestador-sdd-tdd/project.sqlite
 ```
 
-En MVP 1 se crean rutas, schema SQL y metadata. El adapter SQLite real queda reservado para la siguiente etapa.
+En MVP 1 se crean rutas, schema SQL y metadata. Los archivos `.sqlite` son placeholders: el adapter SQLite real queda fuera de MVP1 y reservado para la siguiente etapa.
