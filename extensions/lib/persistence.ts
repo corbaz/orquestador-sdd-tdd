@@ -82,6 +82,7 @@ export function ensurePersistenceFiles(projectRoot = process.cwd()): ProjectMeta
   writeIfMissing(getLocalSchemaPath(projectRoot), createInitialSchemaSql("project"));
   writeIfMissing(getGlobalDatabasePath(), "");
   writeIfMissing(getLocalDatabasePath(projectRoot), "");
+  ensureLocalStateIgnored(projectRoot);
 
   const metadata = readProjectMetadata(projectRoot) ?? createEmptyMetadata(projectRoot);
   writeProjectMetadata(metadata, projectRoot);
@@ -150,4 +151,29 @@ function writeIfMissing(filePath: string, contents: string): void {
   if (fs.existsSync(filePath)) return;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, contents, "utf8");
+}
+
+function ensureLocalStateIgnored(projectRoot: string): void {
+  const gitRoot = findGitRoot(projectRoot);
+  if (!gitRoot) return;
+
+  const gitignorePath = path.join(gitRoot, ".gitignore");
+  const existing = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, "utf8") : "";
+  const lines = existing.split(/\r?\n/).map((line) => line.trim());
+  if (lines.includes(".pi/") || lines.includes(".pi")) return;
+
+  const prefix = existing.length > 0 && !existing.endsWith("\n") ? "\n" : "";
+  fs.writeFileSync(gitignorePath, `${existing}${prefix}.pi/\n`, "utf8");
+}
+
+function findGitRoot(startDir: string): string | null {
+  let current = path.resolve(startDir);
+
+  while (true) {
+    if (fs.existsSync(path.join(current, ".git"))) return current;
+
+    const parent = path.dirname(current);
+    if (parent === current) return null;
+    current = parent;
+  }
 }
