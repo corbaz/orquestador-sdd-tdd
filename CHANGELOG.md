@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.1 - 
+
+### Commits
+
+778282b fix: clearer spanish terms for scenarios
+
 ## 1.9.0 - 
 
 ### Commits
