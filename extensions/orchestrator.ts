@@ -26,8 +26,6 @@ const ORCHESTRATOR_VERSION = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8"),
 ).version as string;
 
-const GITHUB_API = "https://api.github.com/repos/corbaz/orquestador-sdd-tdd/releases/latest";
-
 type CommandDefinition = {
   step: WorkflowStep;
   command: string;
@@ -209,18 +207,26 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
     description: "Muestra la version instalada del orquestador y compara con GitHub.",
     handler: async (_args: string, ctx: any) => {
       let latest = "";
+      let fetchError = "";
       try {
-        const response = await fetch(GITHUB_API, { method: "GET", headers: { Accept: "application/vnd.github.v3+json", "User-Agent": "orquestador-sdd-tdd" } });
+        const response = await fetch("https://api.github.com/repos/corbaz/orquestador-sdd-tdd/releases/latest", {
+          method: "GET",
+          headers: { Accept: "application/vnd.github.v3+json", "User-Agent": "orquestador-sdd-tdd/1.6" },
+        });
         if (response.ok) {
           const data = (await response.json()) as { tag_name: string };
           latest = data.tag_name.replace(/^v/, "");
+        } else if (response.status === 403 || response.status === 429) {
+          fetchError = "límite de API de GitHub alcanzado (esperá un minuto)";
+        } else {
+          fetchError = `GitHub respondió ${response.status}`;
         }
-      } catch {
-        // no internet, no problem
+      } catch (err) {
+        fetchError = String(err).slice(0, 80);
       }
 
-      const message = buildVersionMessage(ORCHESTRATOR_VERSION, latest);
-      ctx?.ui?.notify?.(`Orquestador version ${ORCHESTRATOR_VERSION}${latest ? ` (ultimo: ${latest})` : ""}`, "info");
+      const message = buildVersionMessage(ORCHESTRATOR_VERSION, latest, fetchError);
+      ctx?.ui?.notify?.(`Orquestador version ${ORCHESTRATOR_VERSION}${latest ? ` (ultimo: ${latest})` : fetchError ? ` (${fetchError})` : ""}`, "info");
       sendGuidance(pi, message, message);
     },
   });
@@ -352,11 +358,13 @@ function buildFixMessage(report: ProjectFixReport): string {
   ].join("\n");
 }
 
-function buildVersionMessage(version: string, latest?: string): string {
+function buildVersionMessage(version: string, latest?: string, fetchError?: string): string {
   const updateLine = latest && latest !== version
     ? `\nActualizacion disponible: v${version} → v${latest}\nEjecuta: pi update git:github.com/corbaz/orquestador-sdd-tdd\n`
     : latest
     ? "\nEstas al dia.\n"
+    : fetchError
+    ? `\nNo se pudo verificar: ${fetchError}\n`
     : "\nNo se pudo verificar la ultima version (sin conexion?).\n";
 
   return [
