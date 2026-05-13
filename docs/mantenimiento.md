@@ -32,6 +32,7 @@ pi --no-skills
 | Git | Si detecta un repo Git, asegura ignores seguros en `.gitignore`. |
 | Correcciones actuales | Agrega `.pi/` y `.DS_Store` si faltan. |
 | Artefactos SDD | Revisa `docs/sdd/` segun los pasos completados en metadata. |
+| Coherencia SDD | Verifica referencias entre fases, cobertura de requisitos `MUST` y conflictos conservadores con fuera de alcance. |
 | Seguridad | No modifica codigo productivo ni crea artefactos SDD faltantes automaticamente. |
 
 ## Hallazgos posibles
@@ -42,6 +43,10 @@ pi --no-skills
 | `gitignore-entry-added` | Se agrego una entrada segura a `.gitignore`. |
 | `metadata-missing` | El proyecto todavia no tiene metadata del orquestador. |
 | `sdd-artifact-missing` | Un paso figura como completado, pero falta su artefacto SDD esperado. |
+| `sdd-reference-missing` | Un documento no referencia el artefacto anterior esperado. |
+| `sdd-design-coverage-missing` | Un requisito `MUST` no aparece en el diseno. |
+| `sdd-task-coverage-missing` | Un requisito `MUST` no aparece en las tareas. |
+| `sdd-out-of-scope-conflict` | Un tema marcado fuera de alcance reaparece como trabajo activo. |
 
 ## Update vs doctor
 
@@ -50,3 +55,13 @@ pi --no-skills
 `/pi:99-doctor` revisa y corrige solo el proyecto actual donde lo ejecutas.
 
 Esto evita que una actualizacion global modifique proyectos sin permiso.
+
+## Criterio de produccion minima
+
+El orquestador queda listo para uso controlado cuando:
+
+- `bun run check` pasa en el repo principal.
+- `/pi:99-doctor` no reporta errores en el proyecto actual.
+- Los pasos completados tienen sus artefactos SDD esperados.
+- Los requisitos `MUST` aparecen cubiertos por diseno y tareas.
+- No hay temas fuera de alcance reintroducidos como trabajo activo.

@@ -57,6 +57,10 @@ Convencion: los comandos `/pi:99-*` son auxiliares. El flujo principal queda res
 
 Ver tambien `docs/mantenimiento.md`.
 
+Produccion minima del orquestador se valida con `bun run check` en este repo y `/pi:99-doctor` sin errores en el proyecto objetivo.
+
+Ver tambien `docs/produccion.md`.
+
 ## Persistencia
 
 Global:

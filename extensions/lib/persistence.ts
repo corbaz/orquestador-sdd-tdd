@@ -46,7 +46,7 @@ export const SDD_ARTIFACTS: { step: WorkflowStep; path: string; label: string }[
 ];
 
 export type ProjectDoctorIssue = {
-  severity: "warning" | "fixed";
+  severity: "warning" | "fixed" | "error";
   code: string;
   message: string;
 };
@@ -57,6 +57,13 @@ export type ProjectDoctorArtifact = {
   label: string;
   exists: boolean;
   required: boolean;
+};
+
+type SddDocumentSet = {
+  proposal: string;
+  spec: string;
+  design: string;
+  tasks: string;
 };
 
 export type ProjectDoctorReport = {
@@ -194,7 +201,11 @@ export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorRepo
     exists: fs.existsSync(path.join(projectRoot, artifact.path)),
     required: completedSteps.includes(artifact.step),
   }));
-  const issues = buildDoctorIssues(gitRoot, gitignoreResult?.addedEntries ?? [], metadata, sddArtifacts);
+  const documents = readSddDocuments(projectRoot);
+  const issues = [
+    ...buildDoctorIssues(gitRoot, gitignoreResult?.addedEntries ?? [], metadata, sddArtifacts),
+    ...buildCoherenceIssues(documents, sddArtifacts),
+  ];
 
   return {
     projectRoot,
@@ -209,6 +220,173 @@ export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorRepo
     sddArtifacts,
     issues,
   };
+}
+
+function readSddDocuments(projectRoot: string): SddDocumentSet {
+  return {
+    proposal: readTextIfExists(path.join(projectRoot, "docs", "sdd", "03-propuesta.md")),
+    spec: readTextIfExists(path.join(projectRoot, "docs", "sdd", "04-especificacion.md")),
+    design: readTextIfExists(path.join(projectRoot, "docs", "sdd", "05-diseno.md")),
+    tasks: readTextIfExists(path.join(projectRoot, "docs", "sdd", "06-tareas.md")),
+  };
+}
+
+function readTextIfExists(filePath: string): string {
+  return fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
+}
+
+function buildCoherenceIssues(documents: SddDocumentSet, artifacts: ProjectDoctorArtifact[]): ProjectDoctorIssue[] {
+  const issues: ProjectDoctorIssue[] = [];
+  const specRequired = artifacts.some((artifact) => artifact.step === "04-spec" && artifact.required && artifact.exists);
+  const designRequired = artifacts.some((artifact) => artifact.step === "05-design" && artifact.required && artifact.exists);
+  const tasksRequired = artifacts.some((artifact) => artifact.step === "06-tasks" && artifact.required && artifact.exists);
+
+  if (designRequired && !documents.design.includes("04-especificacion.md")) {
+    issues.push({
+      severity: "warning",
+      code: "sdd-reference-missing",
+      message: "El diseno no referencia `docs/sdd/04-especificacion.md`.",
+    });
+  }
+
+  if (tasksRequired && !documents.tasks.includes("05-diseno.md")) {
+    issues.push({
+      severity: "warning",
+      code: "sdd-reference-missing",
+      message: "Las tareas no referencian `docs/sdd/05-diseno.md`.",
+    });
+  }
+
+  if (specRequired && designRequired) {
+    for (const requirement of extractMustRequirements(documents.spec)) {
+      if (!documentCoversRequirement(documents.design, requirement)) {
+        issues.push({
+          severity: "warning",
+          code: "sdd-design-coverage-missing",
+          message: `El requisito MUST ${requirement} no aparece referenciado en el diseno.`,
+        });
+      }
+    }
+  }
+
+  if (specRequired && tasksRequired) {
+    for (const requirement of extractMustRequirements(documents.spec)) {
+      if (!documentCoversRequirement(documents.tasks, requirement)) {
+        issues.push({
+          severity: "warning",
+          code: "sdd-task-coverage-missing",
+          message: `El requisito MUST ${requirement} no aparece cubierto en las tareas.`,
+        });
+      }
+    }
+  }
+
+  for (const conflict of findOutOfScopeConflicts(documents.proposal, [documents.design, documents.tasks].join("\n"))) {
+    issues.push({
+      severity: "error",
+      code: "sdd-out-of-scope-conflict",
+      message: conflict,
+    });
+  }
+
+  return issues;
+}
+
+function documentCoversRequirement(document: string, requirement: string): boolean {
+  if (document.includes(requirement)) return true;
+
+  const requirementNumber = Number(requirement.match(/RQ-(\d{3})/)?.[1]);
+  if (!Number.isFinite(requirementNumber)) return false;
+
+  for (const match of document.matchAll(/RQ-(\d{3})\s*(?:a|to|-)\s*RQ-(\d{3})/gi)) {
+    const start = Number(match[1]);
+    const end = Number(match[2]);
+    if (requirementNumber >= start && requirementNumber <= end) return true;
+  }
+
+  return false;
+}
+
+function extractMustRequirements(spec: string): string[] {
+  const lines = spec.split(/\r?\n/);
+  const requirements: string[] = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const id = lines[index].match(/\bRQ-\d{3}\b/)?.[0];
+    if (!id) continue;
+
+    const window = lines.slice(index, index + 8).join("\n");
+    if (/\*\*Prioridad:\*\*\s*MUST/i.test(window) || /Prioridad:\s*MUST/i.test(window)) {
+      requirements.push(id);
+    }
+  }
+
+  return [...new Set(requirements)];
+}
+
+function findOutOfScopeConflicts(proposal: string, downstream: string): string[] {
+  const topics = extractOutOfScopeTopics(proposal);
+  const downstreamLines = downstream.split(/\r?\n/);
+  const conflicts: string[] = [];
+
+  for (const topic of topics) {
+    const line = downstreamLines.find((candidate) => lineIntroducesTopic(candidate, topic));
+    if (line) {
+      conflicts.push(`Tema fuera de alcance reaparece como trabajo activo: "${topic}" en "${line.trim()}".`);
+    }
+  }
+
+  return conflicts;
+}
+
+function extractOutOfScopeTopics(proposal: string): string[] {
+  const section = extractSection(proposal, /##\s+\d*\.?\s*Fuera de alcance/i);
+  const rawTopics = section
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("-"))
+    .flatMap((line) => extractKnownTopics(line));
+
+  return [...new Set(rawTopics)];
+}
+
+function extractSection(markdown: string, headingPattern: RegExp): string {
+  const lines = markdown.split(/\r?\n/);
+  const start = lines.findIndex((line) => headingPattern.test(line));
+  if (start === -1) return "";
+
+  const next = lines.findIndex((line, index) => index > start && /^##\s+/.test(line));
+  return lines.slice(start + 1, next === -1 ? lines.length : next).join("\n");
+}
+
+function extractKnownTopics(line: string): string[] {
+  const normalized = line.toLowerCase();
+  const topics: string[] = [];
+  const knownTopics = [
+    { token: "sqlite", label: "SQLite" },
+    { token: "ci/cd", label: "CI/CD" },
+    { token: "github actions", label: "GitHub Actions" },
+    { token: "interfaz grafica", label: "interfaz grafica" },
+    { token: "aplicacion productiva", label: "aplicacion productiva" },
+    { token: "integraciones externas", label: "integraciones externas" },
+    { token: "servicios remotos", label: "servicios remotos" },
+  ];
+
+  for (const topic of knownTopics) {
+    if (normalized.includes(topic.token)) topics.push(topic.label);
+  }
+
+  return topics;
+}
+
+function lineIntroducesTopic(line: string, topic: string): boolean {
+  const normalized = line.toLowerCase();
+  const normalizedTopic = topic.toLowerCase();
+  const hasTopic = normalized.includes(normalizedTopic) || (normalizedTopic === "ci/cd" && normalized.includes("github actions"));
+  if (!hasTopic) return false;
+  if (/\b(no|sin|fuera de alcance|no se incluye|no debe|queda fuera)\b/i.test(line)) return false;
+
+  return /\b(implementar|crear|agregar|anadir|añadir|requerir|obligatorio|must|configurar|introducir)\b/i.test(line);
 }
 
 function buildDoctorIssues(
