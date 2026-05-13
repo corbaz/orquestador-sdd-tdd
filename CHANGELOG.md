@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.0 - 
+
+### Commits
+
+de7ed03 feat: each step reviews previous before advancing
+
 ## 1.7.0 - 
 
 ### Commits
