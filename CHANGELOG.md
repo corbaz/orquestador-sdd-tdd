@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 - CI remoto
+
+Agrega validacion automatica en GitHub para cada push y PR.
+
+### Incluye
+
+- Workflow CI en `.github/workflows/ci.yml`.
+- Ejecuta `bun install` y `bun run check` en cada push a `main` y PR contra `main`.
+- Corre con Ubuntu latest y Bun `1.3.13`.
+
 ## 1.1.0 - Reportes versionables
 
 Agrega evidencia versionable para revisiones tecnicas o direccion.

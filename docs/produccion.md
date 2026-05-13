@@ -2,7 +2,7 @@
 
 El orquestador esta listo para uso controlado cuando el paquete pasa sus checks locales y el proyecto objetivo no presenta errores en `/pi:99-doctor`.
 
-Version de referencia: `1.1.0`.
+Version de referencia: `1.2.0`.
 
 ## Camino rapido
 

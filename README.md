@@ -2,7 +2,9 @@
 
 Paquete global de Pi para guiar proyectos con SDD y TDD paso a paso.
 
-Version actual: `1.1.0` con reportes versionables.
+Version actual: `1.2.0` con CI remoto.
+
+[![CI](https://github.com/corbaz/orquestador-sdd-tdd/actions/workflows/ci.yml/badge.svg)](https://github.com/corbaz/orquestador-sdd-tdd/actions/workflows/ci.yml)
 
 ## Objetivo
 
