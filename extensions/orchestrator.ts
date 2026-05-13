@@ -112,25 +112,40 @@ const COMMANDS: CommandDefinition[] = [
 
 export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   const v = ORCHESTRATOR_VERSION;
+  const C = {
+    reset: "\x1b[0m",
+    cyan: "\x1b[36m",
+    green: "\x1b[32m",
+    blue: "\x1b[34m",
+    gray: "\x1b[90m",
+    bold: "\x1b[1m",
+  };
+  const G = (s: string) => `${C.green}${s}${C.reset}`;
+  const B = (s: string) => `${C.blue}${s}${C.reset}`;
   console.log("");
-  console.log(`  Orquestador SDD/TDD v${v}`);
-  console.log("  ───────────────────────────────────────");
-  console.log("  FLUJO PRINCIPAL");
-  console.log("  /pi:01-init     Iniciar el flujo SDD/TDD");
-  console.log("  /pi:02-discover Relevar el proyecto");
-  console.log("  /pi:03-propose  Redactar propuesta");
-  console.log("  /pi:04-spec     Especificar requisitos");
-  console.log("  /pi:05-design   Disenar arquitectura");
-  console.log("  /pi:06-tasks    Planificar tareas");
-  console.log("  /pi:07-apply    Aplicar con TDD");
-  console.log("  /pi:08-verify   Verificar contra spec");
-  console.log("  /pi:09-review   Cerrar ciclo");
-  console.log("  AUXILIARES");
-  console.log("  /pi:99-doctor   Diagnosticar el proyecto");
-  console.log("  /pi:99-migrate  Preparar convenciones");
-  console.log("  /pi:99-report   Generar evidencia");
-  console.log("  /pi:99-fix      Auto-corregir hallazgos");
-  console.log("  /pi:99-version  Mostrar version");
+  console.log(`${C.gray}  ───────────────────────────────────────${C.reset}`);
+  console.log(`  ${C.cyan}${C.bold}Orquestador SDD/TDD v${v}${C.reset}`);
+  console.log(`${C.gray}  ───────────────────────────────────────${C.reset}`);
+  console.log(`  ${C.cyan}FLUJO PRINCIPAL${C.reset}`);
+  console.log(`  ${C.gray}───────────────${C.reset}`);
+  console.log(`  ${G("/pi:01-init")}     Iniciar el flujo SDD/TDD`);
+  console.log(`  ${G("/pi:02-discover")} Relevar el proyecto`);
+  console.log(`  ${G("/pi:03-propose")}  Redactar propuesta`);
+  console.log(`  ${G("/pi:04-spec")}     Especificar requisitos`);
+  console.log(`  ${G("/pi:05-design")}   Disenar arquitectura`);
+  console.log(`  ${G("/pi:06-tasks")}    Planificar tareas`);
+  console.log(`  ${G("/pi:07-apply")}    Aplicar con TDD`);
+  console.log(`  ${G("/pi:08-verify")}   Verificar contra spec`);
+  console.log(`  ${G("/pi:09-review")}   Cerrar ciclo`);
+  console.log(`  ${C.gray}───────────────────────────────────────${C.reset}`);
+  console.log(`  ${C.cyan}AUXILIARES${C.reset}`);
+  console.log(`  ${C.gray}──────────${C.reset}`);
+  console.log(`  ${B("/pi:99-doctor")}  Diagnosticar el proyecto`);
+  console.log(`  ${B("/pi:99-migrate")} Preparar convenciones`);
+  console.log(`  ${B("/pi:99-report")}  Generar evidencia`);
+  console.log(`  ${B("/pi:99-fix")}     Auto-corregir hallazgos`);
+  console.log(`  ${B("/pi:99-version")} Mostrar version`);
+  console.log(`${C.gray}  ───────────────────────────────────────${C.reset}`);
   console.log("");
 
   registerProtectSecretsHook(pi);
