@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.1 - 
+
+### Commits
+
+6f934ad fix: colored banner + markdown table for ayuda
+
 ## 1.12.0 - 
 
 ### Commits
