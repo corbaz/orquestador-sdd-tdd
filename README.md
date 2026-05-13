@@ -55,6 +55,8 @@ MVP 2 agrega un comando de diagnostico fuera del flujo numerado:
 
 Convencion: los comandos `/pi:99-*` son auxiliares. El flujo principal queda reservado para `/pi:01-*` a `/pi:98-*`.
 
+Ver tambien `docs/mantenimiento.md`.
+
 ## Persistencia
 
 Global:

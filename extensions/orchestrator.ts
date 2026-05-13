@@ -149,8 +149,9 @@ function sendGuidance(pi: any, userPrompt: string, visibleMessage: string): void
 
 function buildDoctorMessage(report: ProjectDoctorReport): string {
   const artifactLines = report.sddArtifacts.map(
-    (artifact) => `- ${artifact.exists ? "OK" : "Falta"}: ${artifact.path}`,
+    (artifact) => `- ${getArtifactStatus(artifact.exists, artifact.required)}: ${artifact.path}`,
   );
+  const issueLines = report.issues.map((issue) => `- ${issue.severity.toUpperCase()} [${issue.code}]: ${issue.message}`);
 
   return [
     "# pi:99-doctor",
@@ -171,9 +172,19 @@ function buildDoctorMessage(report: ProjectDoctorReport): string {
     "Artefactos SDD esperados:",
     ...artifactLines,
     "",
+    "Hallazgos:",
+    ...(issueLines.length > 0 ? issueLines : ["- Sin hallazgos pendientes."]),
+    "",
     "Siguiente paso:",
     "- Si el reporte muestra faltantes, corregilos conscientemente o segui el flujo SDD correspondiente.",
     "- /pi:99-doctor no avanza pasos del flujo y no reemplaza /pi:01-init a /pi:06-tasks.",
     "",
   ].join("\n");
+}
+
+function getArtifactStatus(exists: boolean, required: boolean): string {
+  if (required && exists) return "OK";
+  if (required && !exists) return "Falta";
+  if (!required && exists) return "Existe";
+  return "No requerido";
 }

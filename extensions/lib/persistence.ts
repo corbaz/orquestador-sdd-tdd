@@ -38,6 +38,27 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
 
 export const DEFAULT_GITIGNORE_ENTRIES = [".pi/", ".DS_Store"];
 
+export const SDD_ARTIFACTS: { step: WorkflowStep; path: string; label: string }[] = [
+  { step: "03-propose", path: "docs/sdd/03-propuesta.md", label: "Propuesta SDD" },
+  { step: "04-spec", path: "docs/sdd/04-especificacion.md", label: "Especificacion SDD" },
+  { step: "05-design", path: "docs/sdd/05-diseno.md", label: "Diseno tecnico" },
+  { step: "06-tasks", path: "docs/sdd/06-tareas.md", label: "Tareas SDD/TDD" },
+];
+
+export type ProjectDoctorIssue = {
+  severity: "warning" | "fixed";
+  code: string;
+  message: string;
+};
+
+export type ProjectDoctorArtifact = {
+  step: WorkflowStep;
+  path: string;
+  label: string;
+  exists: boolean;
+  required: boolean;
+};
+
 export type ProjectDoctorReport = {
   projectRoot: string;
   gitRoot: string | null;
@@ -48,7 +69,8 @@ export type ProjectDoctorReport = {
   currentStep: WorkflowStep | null;
   completedSteps: WorkflowStep[];
   docsSddExists: boolean;
-  sddArtifacts: { path: string; exists: boolean }[];
+  sddArtifacts: ProjectDoctorArtifact[];
+  issues: ProjectDoctorIssue[];
 };
 
 export function createInitialSchemaSql(scope: "global" | "project"): string {
@@ -166,15 +188,13 @@ export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorRepo
   const gitRoot = findGitRoot(projectRoot);
   const gitignoreResult = gitRoot ? ensureGitignoreEntries(gitRoot, DEFAULT_GITIGNORE_ENTRIES) : null;
   const metadata = readProjectMetadata(projectRoot);
-  const sddArtifacts = [
-    "docs/sdd/03-propuesta.md",
-    "docs/sdd/04-especificacion.md",
-    "docs/sdd/05-diseno.md",
-    "docs/sdd/06-tareas.md",
-  ].map((artifactPath) => ({
-    path: artifactPath,
-    exists: fs.existsSync(path.join(projectRoot, artifactPath)),
+  const completedSteps = metadata?.completedSteps ?? [];
+  const sddArtifacts = SDD_ARTIFACTS.map((artifact) => ({
+    ...artifact,
+    exists: fs.existsSync(path.join(projectRoot, artifact.path)),
+    required: completedSteps.includes(artifact.step),
   }));
+  const issues = buildDoctorIssues(gitRoot, gitignoreResult?.addedEntries ?? [], metadata, sddArtifacts);
 
   return {
     projectRoot,
@@ -184,10 +204,56 @@ export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorRepo
     existingGitignoreEntries: gitignoreResult?.existingEntries ?? [],
     hasMetadata: metadata !== null,
     currentStep: metadata?.currentStep ?? null,
-    completedSteps: metadata?.completedSteps ?? [],
+    completedSteps,
     docsSddExists: fs.existsSync(path.join(projectRoot, "docs", "sdd")),
     sddArtifacts,
+    issues,
   };
+}
+
+function buildDoctorIssues(
+  gitRoot: string | null,
+  addedGitignoreEntries: string[],
+  metadata: ProjectMetadata | null,
+  sddArtifacts: ProjectDoctorArtifact[],
+): ProjectDoctorIssue[] {
+  const issues: ProjectDoctorIssue[] = [];
+
+  if (!gitRoot) {
+    issues.push({
+      severity: "warning",
+      code: "git-not-detected",
+      message: "No se detecto repositorio Git; no se aplicaron ignores automaticos.",
+    });
+  }
+
+  for (const entry of addedGitignoreEntries) {
+    issues.push({
+      severity: "fixed",
+      code: "gitignore-entry-added",
+      message: `Se agrego ${entry} a .gitignore.`,
+    });
+  }
+
+  if (!metadata) {
+    issues.push({
+      severity: "warning",
+      code: "metadata-missing",
+      message: "No se detecto metadata del orquestador; ejecuta /pi:01-init si queres iniciar el flujo.",
+    });
+  }
+
+  for (const artifact of sddArtifacts) {
+    if (artifact.required && !artifact.exists) {
+      issues.push({
+        severity: "warning",
+        code: "sdd-artifact-missing",
+        message: `Falta ${artifact.path}, requerido porque ${artifact.step} figura como completado.`,
+      });
+    }
+  }
+
+  return issues;
 }
 
 function writeIfMissing(filePath: string, contents: string): void {

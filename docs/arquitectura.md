@@ -35,6 +35,8 @@ Cada comando del flujo explica que hace, cual es el proximo paso y envia una gui
 
 En MVP2 tambien centraliza mantenimiento seguro de `.gitignore` para estado local del orquestador y ruido comun del sistema operativo.
 
+`runProjectDoctor()` reporta hallazgos, correcciones aplicadas y artefactos SDD esperados segun los pasos completados. No crea documentos SDD ni avanza metadata.
+
 ### Skills y prompts
 
 Los skills dan instrucciones operativas por fase. Los prompts numerados ofrecen entradas reutilizables para cada comando.

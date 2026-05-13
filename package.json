@@ -6,8 +6,9 @@
   "packageManager": "bun@1.3.13",
   "private": false,
   "scripts": {
-    "check": "bun scripts/check-package.ts",
-    "check:package": "bun scripts/check-package.ts"
+    "check": "bun run check:package && bun run test:doctor",
+    "check:package": "bun scripts/check-package.ts",
+    "test:doctor": "bun scripts/test-doctor.ts"
   },
   "keywords": [
     "pi-package",
