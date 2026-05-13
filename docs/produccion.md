@@ -37,6 +37,16 @@ Resultado esperado:
 | Coherencia | Requisitos `MUST` deben aparecer en diseno y tareas. |
 | Alcance | Temas fuera de alcance no deben reaparecer como implementacion activa. |
 
+## Pruebas del paquete
+
+`bun run check` ejecuta:
+
+| Script | Que valida |
+| --- | --- |
+| `check:package` | Manifest Pi, comandos, skills y build del entrypoint. |
+| `test:doctor` | Mantenimiento, migracion, coherencia SDD y conflictos de alcance. |
+| `test:workflow` | Persistencia inicial, orden de pasos e idempotencia del avance. |
+
 ## Que no cubre todavia
 
 - No ejecuta una aplicacion productiva del usuario.
