@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.4 - 
+
+### Commits
+
+22d2088 fix: merge migrate conventions into init
+
 ## 1.6.3 - 
 
 ### Commits
