@@ -218,6 +218,8 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
           latest = data.tag_name.replace(/^v/, "");
         } else if (response.status === 403 || response.status === 429) {
           fetchError = "límite de API de GitHub alcanzado (esperá un minuto)";
+        } else if (response.status === 404) {
+          fetchError = "repo privado — no se puede verificar sin token";
         } else {
           fetchError = `GitHub respondió ${response.status}`;
         }
