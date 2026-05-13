@@ -167,8 +167,8 @@ export function ensurePersistenceFiles(projectRoot = process.cwd()): ProjectMeta
 
   writeIfMissing(getGlobalSchemaPath(), createInitialSchemaSql("global"));
   writeIfMissing(getLocalSchemaPath(projectRoot), createInitialSchemaSql("project"));
-  writeIfMissing(getGlobalDatabasePath(), "");
-  writeIfMissing(getLocalDatabasePath(projectRoot), "");
+  initGlobalDatabase();
+  initProjectDatabase(projectRoot);
   ensureProjectGitignoreEntries(projectRoot);
 
   const metadata = readProjectMetadata(projectRoot) ?? createEmptyMetadata(projectRoot);
@@ -234,29 +234,13 @@ export function createEmptyMetadata(projectRoot = process.cwd()): ProjectMetadat
   };
 }
 
-export function openProjectDatabase(projectRoot = process.cwd()): Database | null {
-  const dbPath = getLocalDatabasePath(projectRoot);
-  const schemaPath = getLocalSchemaPath(projectRoot);
-
-  if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) return null;
-
-  try {
-    const db = new Database(dbPath);
-    if (fs.existsSync(schemaPath)) {
-      const schema = fs.readFileSync(schemaPath, "utf8");
-      if (schema.trim()) db.run(schema);
-    }
-    return db;
-  } catch {
-    return null;
-  }
-}
-
-export function initProjectDatabase(projectRoot = process.cwd(), force = false): Database {
+export function initProjectDatabase(projectRoot = process.cwd(), force = false): void {
   const dbPath = getLocalDatabasePath(projectRoot);
   const schemaPath = getLocalSchemaPath(projectRoot);
 
   if (force && fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+
+  if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) return;
 
   const db = new Database(dbPath);
   db.run("PRAGMA journal_mode=WAL");
@@ -266,8 +250,52 @@ export function initProjectDatabase(projectRoot = process.cwd(), force = false):
     const schema = fs.readFileSync(schemaPath, "utf8");
     if (schema.trim()) db.run(schema);
   }
+  db.close();
+}
 
-  return db;
+export function initGlobalDatabase(force = false): void {
+  const dbPath = getGlobalDatabasePath();
+  const schemaPath = getGlobalSchemaPath();
+
+  if (force && fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+
+  if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) return;
+
+  const db = new Database(dbPath);
+
+  if (fs.existsSync(schemaPath)) {
+    const schema = fs.readFileSync(schemaPath, "utf8");
+    if (schema.trim()) db.run(schema);
+  }
+  db.close();
+}
+
+export function openProjectDatabase(projectRoot = process.cwd()): Database | null {
+  const dbPath = getLocalDatabasePath(projectRoot);
+
+  if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
+    initProjectDatabase(projectRoot);
+  }
+
+  try {
+    return new Database(dbPath);
+  } catch {
+    return null;
+  }
+}
+
+export function openGlobalDatabase(): Database | null {
+  const dbPath = getGlobalDatabasePath();
+
+  if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
+    initGlobalDatabase();
+  }
+
+  try {
+    return new Database(dbPath);
+  } catch {
+    return null;
+  }
 }
 
 export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorReport {

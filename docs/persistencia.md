@@ -29,16 +29,20 @@ SQL generado:
 
 ## SQLite adapter
 
-SQLite esta disponible como adapter opcional. Los archivos `.sqlite` se crean como placeholders por `ensurePersistenceFiles()`. Para activar persistencia real:
+SQLite se activa automaticamente al inicializar un proyecto. `ensurePersistenceFiles()` crea e inicializa la base de datos con el schema SQL. Para acceder a la base de datos:
 
 ```ts
-import { initProjectDatabase } from "../extensions/lib/persistence.ts";
+import { openProjectDatabase, openGlobalDatabase } from "../extensions/lib/persistence.ts";
 
-const db = initProjectDatabase(projectRoot);
+const db = openProjectDatabase(projectRoot);
 db.run("INSERT INTO workflow_events (project_root, step, event_type) VALUES (?, ?, ?)", [projectRoot, "01-init", "applied"]);
+const rows = db.query("SELECT * FROM workflow_events").all();
+
+// Para cerrar la conexion:
+db.close();
 ```
 
-`openProjectDatabase()` devuelve `null` si el archivo `.sqlite` esta vacio o no existe; `initProjectDatabase()` crea o fuerza la base de datos y ejecuta el schema SQL.
+`openGlobalDatabase()` ofrece acceso a la base de datos global.
 
 ## Schema inicial
 
