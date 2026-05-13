@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0 - 
+
+### Commits
+
+50ceb3e feat: show orchestrator banner on startup
+
 ## 1.9.2 - 
 
 ### Commits
