@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.1 - 
+
+### Commits
+
+53535fe fix: syntax error in prompts
+
 ## 1.11.0 - 
 
 ### Commits
