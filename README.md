@@ -43,6 +43,18 @@ No hace falta publicar con npm para usarlo con Pi. El mecanismo de uso es `pi in
 /pi:06-tasks
 ```
 
+## Mantenimiento MVP 2
+
+MVP 2 agrega un comando de diagnostico fuera del flujo numerado:
+
+```text
+/pi:99-doctor
+```
+
+`/pi:99-doctor` revisa el proyecto actual, no avanza pasos SDD y aplica solo mantenimiento seguro del orquestador. Por ahora asegura entradas locales de `.gitignore` para `.pi/` y `.DS_Store`, y reporta metadata y artefactos SDD esperados.
+
+Convencion: los comandos `/pi:99-*` son auxiliares. El flujo principal queda reservado para `/pi:01-*` a `/pi:98-*`.
+
 ## Persistencia
 
 Global:

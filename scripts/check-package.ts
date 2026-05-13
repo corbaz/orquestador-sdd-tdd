@@ -21,6 +21,7 @@ const requiredCommands = [
   "pi:04-spec",
   "pi:05-design",
   "pi:06-tasks",
+  "pi:99-doctor",
 ];
 
 const failures: string[] = [];

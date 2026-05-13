@@ -16,8 +16,9 @@ El paquete organiza un flujo SDD/TDD en Pi mediante extension, comandos, hooks, 
 - `/pi:04-spec`
 - `/pi:05-design`
 - `/pi:06-tasks`
+- `/pi:99-doctor`
 
-Cada comando explica que hace, cual es el proximo paso y envia una guia visible para orientar al agente.
+Cada comando del flujo explica que hace, cual es el proximo paso y envia una guia visible para orientar al agente. `/pi:99-doctor` queda fuera del flujo numerado: diagnostica el proyecto actual y aplica mantenimiento seguro sin avanzar pasos SDD.
 
 ### Hooks
 
@@ -32,6 +33,8 @@ Cada comando explica que hace, cual es el proximo paso y envia una guia visible 
 
 `extensions/lib/persistence.ts` crea SQL inicial, metadata JSON y placeholders `.sqlite`; el adapter SQLite real queda fuera de MVP1 para no exigir una dependencia nativa.
 
+En MVP2 tambien centraliza mantenimiento seguro de `.gitignore` para estado local del orquestador y ruido comun del sistema operativo.
+
 ### Skills y prompts
 
 Los skills dan instrucciones operativas por fase. Los prompts numerados ofrecen entradas reutilizables para cada comando.
@@ -39,3 +42,7 @@ Los skills dan instrucciones operativas por fase. Los prompts numerados ofrecen 
 ## Decision MVP1
 
 La automatizacion profunda queda fuera. El valor principal es imponer una secuencia sana: entender, proponer, especificar, disenar, partir tareas y recien despues aplicar.
+
+## Decision MVP2
+
+Los comandos auxiliares usan la familia `/pi:99-*`. Esto deja espacio para que el flujo principal crezca con comandos `/pi:01-*` a `/pi:98-*` sin mezclar mantenimiento con avance de etapas.

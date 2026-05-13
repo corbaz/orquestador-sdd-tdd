@@ -36,6 +36,21 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   "06-tasks",
 ];
 
+export const DEFAULT_GITIGNORE_ENTRIES = [".pi/", ".DS_Store"];
+
+export type ProjectDoctorReport = {
+  projectRoot: string;
+  gitRoot: string | null;
+  gitignorePath: string | null;
+  addedGitignoreEntries: string[];
+  existingGitignoreEntries: string[];
+  hasMetadata: boolean;
+  currentStep: WorkflowStep | null;
+  completedSteps: WorkflowStep[];
+  docsSddExists: boolean;
+  sddArtifacts: { path: string; exists: boolean }[];
+};
+
 export function createInitialSchemaSql(scope: "global" | "project"): string {
   return [
     "-- orquestador-sdd-tdd MVP schema",
@@ -82,7 +97,7 @@ export function ensurePersistenceFiles(projectRoot = process.cwd()): ProjectMeta
   writeIfMissing(getLocalSchemaPath(projectRoot), createInitialSchemaSql("project"));
   writeIfMissing(getGlobalDatabasePath(), "");
   writeIfMissing(getLocalDatabasePath(projectRoot), "");
-  ensureLocalStateIgnored(projectRoot);
+  ensureProjectGitignoreEntries(projectRoot);
 
   const metadata = readProjectMetadata(projectRoot) ?? createEmptyMetadata(projectRoot);
   writeProjectMetadata(metadata, projectRoot);
@@ -147,23 +162,70 @@ export function createEmptyMetadata(projectRoot = process.cwd()): ProjectMetadat
   };
 }
 
+export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorReport {
+  const gitRoot = findGitRoot(projectRoot);
+  const gitignoreResult = gitRoot ? ensureGitignoreEntries(gitRoot, DEFAULT_GITIGNORE_ENTRIES) : null;
+  const metadata = readProjectMetadata(projectRoot);
+  const sddArtifacts = [
+    "docs/sdd/03-propuesta.md",
+    "docs/sdd/04-especificacion.md",
+    "docs/sdd/05-diseno.md",
+    "docs/sdd/06-tareas.md",
+  ].map((artifactPath) => ({
+    path: artifactPath,
+    exists: fs.existsSync(path.join(projectRoot, artifactPath)),
+  }));
+
+  return {
+    projectRoot,
+    gitRoot,
+    gitignorePath: gitignoreResult?.gitignorePath ?? null,
+    addedGitignoreEntries: gitignoreResult?.addedEntries ?? [],
+    existingGitignoreEntries: gitignoreResult?.existingEntries ?? [],
+    hasMetadata: metadata !== null,
+    currentStep: metadata?.currentStep ?? null,
+    completedSteps: metadata?.completedSteps ?? [],
+    docsSddExists: fs.existsSync(path.join(projectRoot, "docs", "sdd")),
+    sddArtifacts,
+  };
+}
+
 function writeIfMissing(filePath: string, contents: string): void {
   if (fs.existsSync(filePath)) return;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, contents, "utf8");
 }
 
-function ensureLocalStateIgnored(projectRoot: string): void {
+function ensureProjectGitignoreEntries(projectRoot: string): void {
   const gitRoot = findGitRoot(projectRoot);
   if (!gitRoot) return;
 
+  ensureGitignoreEntries(gitRoot, DEFAULT_GITIGNORE_ENTRIES);
+}
+
+function ensureGitignoreEntries(gitRoot: string, entries: string[]): {
+  gitignorePath: string;
+  addedEntries: string[];
+  existingEntries: string[];
+} {
   const gitignorePath = path.join(gitRoot, ".gitignore");
   const existing = fs.existsSync(gitignorePath) ? fs.readFileSync(gitignorePath, "utf8") : "";
   const lines = existing.split(/\r?\n/).map((line) => line.trim());
-  if (lines.includes(".pi/") || lines.includes(".pi")) return;
+  const addedEntries = entries.filter((entry) => !hasGitignoreEntry(lines, entry));
+  const existingEntries = entries.filter((entry) => hasGitignoreEntry(lines, entry));
+
+  if (addedEntries.length === 0) {
+    return { gitignorePath, addedEntries, existingEntries };
+  }
 
   const prefix = existing.length > 0 && !existing.endsWith("\n") ? "\n" : "";
-  fs.writeFileSync(gitignorePath, `${existing}${prefix}.pi/\n`, "utf8");
+  fs.writeFileSync(gitignorePath, `${existing}${prefix}${addedEntries.join("\n")}\n`, "utf8");
+  return { gitignorePath, addedEntries, existingEntries };
+}
+
+function hasGitignoreEntry(lines: string[], entry: string): boolean {
+  if (entry === ".pi/") return lines.includes(".pi/") || lines.includes(".pi");
+  return lines.includes(entry);
 }
 
 function findGitRoot(startDir: string): string | null {

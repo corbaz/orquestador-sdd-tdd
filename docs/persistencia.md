@@ -31,6 +31,19 @@ SQL generado:
 
 El helper `ensurePersistenceFiles()` crea directorios, placeholders `.sqlite`, SQL inicial y metadata local. No abre SQLite directamente: en MVP1 no hay adapter SQLite real para evitar sumar una dependencia nativa.
 
+## Mantenimiento MVP2
+
+El orquestador tambien puede asegurar ignores locales seguros en repositorios Git. La lista inicial es:
+
+```gitignore
+.pi/
+.DS_Store
+```
+
+Esto evita que el estado operativo del orquestador y metadatos comunes del sistema operativo aparezcan como cambios productivos del proyecto.
+
+`/pi:99-doctor` puede aplicar estas entradas en el proyecto actual sin avanzar el flujo SDD.
+
 ## Schema inicial
 
 El SQL incluye:

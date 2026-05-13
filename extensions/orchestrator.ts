@@ -8,6 +8,8 @@ import {
   canRunWorkflowStep,
   ensurePersistenceFiles,
   readProjectMetadata,
+  runProjectDoctor,
+  type ProjectDoctorReport,
   type WorkflowStep,
 } from "./lib/persistence.ts";
 
@@ -99,6 +101,22 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       },
     });
   }
+
+  pi.registerCommand("pi:99-doctor", {
+    description: "Diagnostica el proyecto actual y aplica mantenimiento seguro del orquestador.",
+    handler: async (_args: string, ctx: any) => {
+      const projectRoot = ctx?.cwd ?? process.cwd();
+      const report = runProjectDoctor(projectRoot);
+      const message = buildDoctorMessage(report);
+
+      ctx?.ui?.notify?.("Doctor del orquestador ejecutado. Revisa el reporte antes de seguir.", "info");
+      sendGuidance(
+        pi,
+        "Resume el reporte de /pi:99-doctor en espanol. No modifiques codigo ni avances el flujo SDD salvo pedido explicito del usuario.",
+        message,
+      );
+    },
+  });
 }
 
 function buildGuideMessage(definition: CommandDefinition, completedSteps: WorkflowStep[]): string {
@@ -127,4 +145,35 @@ function sendGuidance(pi: any, userPrompt: string, visibleMessage: string): void
   if (typeof pi.sendUserMessage === "function") {
     pi.sendUserMessage(userPrompt);
   }
+}
+
+function buildDoctorMessage(report: ProjectDoctorReport): string {
+  const artifactLines = report.sddArtifacts.map(
+    (artifact) => `- ${artifact.exists ? "OK" : "Falta"}: ${artifact.path}`,
+  );
+
+  return [
+    "# pi:99-doctor",
+    "",
+    "Diagnostico del proyecto actual y mantenimiento seguro del orquestador.",
+    "",
+    `Proyecto: ${report.projectRoot}`,
+    `Git: ${report.gitRoot ?? "no detectado"}`,
+    `Metadata del orquestador: ${report.hasMetadata ? "detectada" : "no detectada"}`,
+    `Paso actual: ${report.currentStep ?? "sin iniciar"}`,
+    `Pasos completados: ${report.completedSteps.map((step) => `/pi:${step}`).join(", ") || "ninguno"}`,
+    "",
+    "Mantenimiento seguro aplicado:",
+    report.gitRoot
+      ? `- .gitignore: ${report.addedGitignoreEntries.length > 0 ? `agregado ${report.addedGitignoreEntries.join(", ")}` : "sin cambios necesarios"}`
+      : "- .gitignore: omitido porque no se detecto repositorio Git",
+    "",
+    "Artefactos SDD esperados:",
+    ...artifactLines,
+    "",
+    "Siguiente paso:",
+    "- Si el reporte muestra faltantes, corregilos conscientemente o segui el flujo SDD correspondiente.",
+    "- /pi:99-doctor no avanza pasos del flujo y no reemplaza /pi:01-init a /pi:06-tasks.",
+    "",
+  ].join("\n");
 }
