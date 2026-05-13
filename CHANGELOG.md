@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.5 - 
+
+### Commits
+
+9990eba docs: explain init step internals
+
 ## 1.6.4 - 
 
 ### Commits
