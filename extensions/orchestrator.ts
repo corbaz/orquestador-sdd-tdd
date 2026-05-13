@@ -42,7 +42,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Inicializa el orquestador SDD/TDD y crea estado local minimo.",
     body: "Prepara el proyecto para trabajar con discovery, propuesta, especificacion, diseno y tareas.",
     next: "Siguiente paso: /pi:02-discover para relevar el proyecto y sus restricciones.",
-    prompt: "Actua como orquestador SDD/TDD. Inicializa el flujo, identifica el objetivo del cambio y deja claro que el proximo paso es discovery.",
+    prompt: "Actua como orquestador SDD/TDD. Inicializa el flujo. PREGUNTA al usuario: '¿Cual es el objetivo de este cambio?' Espera su respuesta y registrala. Luego explica que el proximo paso es /pi:02-discover para relevar el proyecto.",
   },
   {
     step: "02-discover",
@@ -50,7 +50,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Guia el discovery del proyecto antes de proponer cambios.",
     body: "Releva estructura, comandos disponibles, riesgos, convenciones y estado actual sin modificar codigo productivo.",
     next: "Siguiente paso: /pi:03-propose para redactar una propuesta acotada.",
-    prompt: "Ejecuta discovery del proyecto. Resume arquitectura actual, comandos utiles, riesgos, restricciones y preguntas abiertas. No implementes todavia.",
+    prompt: "Ejecuta discovery del proyecto. PREGUNTA al usuario: '¿Que cambio queres hacer?' si no lo definio antes. Releva estructura, comandos, riesgos, convenciones y estado actual. No implementes todavia. Al final, PREGUNTA: '¿Que objetivo concreto tiene este cambio?' y espera la respuesta antes de continuar.",
   },
   {
     step: "03-propose",
@@ -58,7 +58,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Crea una propuesta SDD con alcance, motivacion y no-objetivos.",
     body: "Convierte el discovery en una propuesta revisable antes de escribir especificaciones.",
     next: "Siguiente paso: /pi:04-spec para definir requisitos y escenarios verificables.",
-    prompt: "Redacta una propuesta SDD en espanol con problema, objetivo, alcance, fuera de alcance, riesgos y plan de validacion.",
+    prompt: "Redacta una propuesta SDD en espanol. NO la escribas sola. PREGUNTA al usuario una por una cada seccion: 1) '¿Cual es el problema que resuelve este cambio?' 2) '¿Cual es el objetivo?' 3) '¿Que entra en el alcance?' 4) '¿Que queda fuera de alcance?' 5) '¿Que riesgos ves?' 6) '¿Como deberiamos validar?' Espera su respuesta en cada paso. Despues de cada respuesta, escribi la seccion en el archivo de propuesta. Al final, mostra el resumen y preguntale si quiere modificar algo.",
   },
   {
     step: "04-spec",
@@ -66,7 +66,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Genera especificaciones SDD con requisitos y escenarios.",
     body: "Define comportamiento observable y criterios de aceptacion antes del diseno tecnico.",
     next: "Siguiente paso: /pi:05-design para decidir la arquitectura de implementacion.",
-    prompt: "Escribe la especificacion SDD con requisitos MUST/SHOULD y escenarios Given/When/Then. Mantenela verificable.",
+    prompt: "Escribe la especificacion SDD. PREGUNTA al usuario uno por uno: 1) '¿Que requisitos MUST (obligatorios) tiene este cambio?' 2) '¿Que requisitos SHOULD (deseables) tiene?' 3) '¿Que escenarios Given/When/Then deberiamos contemplar?' Para cada respuesta, agregala a la especificacion. Al final, preguntale si quiere agregar mas escenarios.",
   },
   {
     step: "05-design",
@@ -74,7 +74,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Produce el diseno tecnico que implementara la especificacion.",
     body: "Documenta componentes, contratos, persistencia, riesgos y decisiones de arquitectura.",
     next: "Siguiente paso: /pi:06-tasks para partir el trabajo en tareas implementables.",
-    prompt: "Crea el diseno tecnico SDD. Explica componentes, flujos, contratos, persistencia, testing y tradeoffs. No implementes codigo aun.",
+    prompt: "Crea el diseno tecnico SDD. PREGUNTA al usuario: 1) '¿Que componentes o modulos se ven afectados?' 2) '¿Que decisiones de arquitectura hay que tomar?' 3) '¿Que contratos o interfaces se modifican?' 4) '¿Como se va a testear?' 5) '¿Que riesgos tecnicos identificas?' Espera cada respuesta antes de continuar y documentala en el diseno.",
   },
   {
     step: "06-tasks",
@@ -82,7 +82,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Divide el diseno en tareas concretas para aplicar con TDD cuando corresponda.",
     body: "Genera una lista ordenada de tareas, dependencias, validaciones y limites de revision.",
     next: "Siguiente paso: /pi:07-apply para aplicar las tareas con TDD en lotes pequenos.",
-    prompt: "Descompone el diseno en tareas implementables con checks de validacion, dependencias y forecast de tamano de revision.",
+    prompt: "Descompone el diseno en tareas implementables. PREGUNTA al usuario: 1) '¿En que orden preferis implementar las tareas?' 2) '¿Cual es el tamano maximo de revision que te sentis comodo?' 3) '¿Preferis TDD estricto o aplicacion primero?' Genera las tareas con dependencias, validaciones y forecast de revision. Muestra el resultado y pregunta si quiere ajustar algo.",
   },
   {
     step: "07-apply",
