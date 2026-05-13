@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0 - 
+
+### Commits
+
+9058c90 feat: agent proposes examples from project context
+
 ## 1.8.0 - 
 
 ### Commits
