@@ -9,6 +9,7 @@
     "check": "bun run check:package && bun run test:doctor && bun run test:workflow && bun run check:version",
     "check:package": "bun scripts/check-package.ts",
     "check:version": "bun scripts/check-version.ts",
+    "install-hooks": "cp scripts/pre-push-hook.sh .git/hooks/pre-push && chmod +x .git/hooks/pre-push",
     "release": "bun scripts/release.ts",
     "test:doctor": "bun scripts/test-doctor.ts",
     "test:workflow": "bun scripts/test-workflow.ts"
