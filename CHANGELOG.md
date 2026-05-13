@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.1 - 
+
+### Commits
+
+aa07e80 fix: full command table in startup banner
+
 ## 1.10.0 - 
 
 ### Commits
