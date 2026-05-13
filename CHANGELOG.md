@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.2 - Version auto-validation
+
+`bun run check` ahora valida que `package.json` coincida con el ultimo tag de Git.
+
+### Incluye
+- Nuevo script `scripts/check-version.ts`.
+- Incluido en `bun run check`.
+- Previene el bug de version desync entre package.json y tag.
+
 ## 1.6.1 - Compatibilidad cross-runtime (fix version)
 
 SQLite ahora es opcional segun el runtime. La extension carga correctamente en cualquier runtime que use Pi.

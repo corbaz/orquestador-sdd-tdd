@@ -18,6 +18,14 @@ if (!latestTag) {
 }
 
 if (pkgVersion !== latestTag) {
+  const [pkgMajor, pkgMinor, pkgPatch] = pkgVersion.split(".").map(Number);
+  const [tagMajor, tagMinor, tagPatch] = latestTag.split(".").map(Number);
+
+  if (pkgMajor === tagMajor && pkgMinor === tagMinor && pkgPatch === tagPatch + 1) {
+    console.log(`Version check: package.json (${pkgVersion}) is one ahead of latest tag (${latestTag}) — expected before tagging.`);
+    process.exit(0);
+  }
+
   console.error(`Version mismatch: package.json says ${pkgVersion}, latest git tag says ${latestTag}.`);
   console.error("Fix: bump package.json version to match the tag you intend to create.");
   process.exit(1);
