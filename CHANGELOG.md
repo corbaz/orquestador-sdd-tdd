@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.2 - 
+
+### Commits
+
+309fd9d fix: separate code findings from suggestions
+
 ## 1.9.1 - 
 
 ### Commits
