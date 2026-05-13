@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 - 
+
+### Commits
+
+60ab12c feat: interactive prompts ask user before writing
+
 ## 1.6.5 - 
 
 ### Commits
