@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.1 - Compatibilidad cross-runtime
+
+SQLite ahora es opcional segun el runtime. La extension carga correctamente en cualquier runtime que use Pi.
+
+- Fix: `bun:sqlite` importado condicionalmente para no romper en runtimes no-Bun.
+- Bun bump a `1.3.14`.
+
 ## 1.6.0 - Manual de usuario y version
 
 Documentacion completa para usuarios finales y comando de version.
