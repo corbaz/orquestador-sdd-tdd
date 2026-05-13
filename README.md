@@ -2,6 +2,8 @@
 
 Paquete global de Pi para guiar proyectos con SDD y TDD paso a paso.
 
+Version actual: `1.0.0` produccion minima.
+
 ## Objetivo
 
 Mantener Pi limpio y agregar un orquestador global reutilizable en cualquier carpeta. El paquete carga comandos, skills y hooks; cada proyecto guarda solo su estado local.
