@@ -111,6 +111,15 @@ const COMMANDS: CommandDefinition[] = [
 ];
 
 export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
+  const lines = [
+    "┌─────────────────────────────────────────────┐",
+    `│  Orquestador SDD/TDD  v${ORCHESTRATOR_VERSION.padEnd(14)}│`,
+    "│  /pi:01-init ... /pi:09-review             │",
+    "│  /pi:99-doctor /pi:99-fix /pi:99-report    │",
+    "└─────────────────────────────────────────────┘",
+  ];
+  console.log(lines.join("\n"));
+
   registerProtectSecretsHook(pi);
   registerCaptureSessionHook(pi);
   registerCompactContextHook(pi);
