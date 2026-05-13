@@ -8,11 +8,15 @@
 4. `/pi:04-spec`: define requisitos y escenarios.
 5. `/pi:05-design`: documenta diseno tecnico.
 6. `/pi:06-tasks`: crea tareas implementables.
+7. `/pi:07-apply`: aplica tareas con TDD.
+8. `/pi:08-verify`: verifica contra especificacion.
+9. `/pi:09-review`: cierra ciclo con evidencia.
 
 ## Convencion de numeracion
 
-- `/pi:01-*` a `/pi:98-*`: flujo principal o futuras fases ordenadas.
-- `/pi:99-*`: comandos auxiliares de diagnostico, mantenimiento, migracion o soporte.
+- `/pi:01-*` a `/pi:08-*`: flujo principal ordenado.
+- `/pi:09-*`: cierre de ciclo.
+- `/pi:99-*`: comandos auxiliares de diagnostico, mantenimiento, migracion, reporte y soporte.
 
 Los comandos `/pi:99-*` no representan avance del flujo SDD/TDD.
 
@@ -32,14 +36,13 @@ No se empieza por codigo. Primero se baja incertidumbre y se acuerda comportamie
 - Spec: comportamiento verificable.
 - Design: decisiones tecnicas.
 - Tasks: plan aplicable y revisable.
-
-## Apply y verify
-
-MVP1 no automatiza apply/verify. El paquete deja la base para que una fase posterior use las tareas generadas con TDD cuando el proyecto lo permita.
+- Apply: cambios implementados.
+- Verify: validacion contra requisitos.
+- Review: cierre y evidencia.
 
 ## Mantenimiento fuera del flujo
 
-`/pi:99-doctor` es un comando MVP2 de diagnostico y mantenimiento seguro. No reemplaza la secuencia `/pi:01-init` a `/pi:06-tasks` y no avanza metadata de pasos.
+`/pi:99-doctor`, `/pi:99-migrate`, `/pi:99-report` y `/pi:99-fix` son comandos auxiliares. No reemplazan la secuencia `/pi:01-init` a `/pi:09-review` y no avanzan metadata de pasos.
 
 Uso esperado:
 
@@ -51,3 +54,4 @@ Correcciones seguras actuales:
 
 - Agregar `.pi/` a `.gitignore` si falta.
 - Agregar `.DS_Store` a `.gitignore` si falta.
+- Crear artefactos SDD faltantes con plantilla inicial.

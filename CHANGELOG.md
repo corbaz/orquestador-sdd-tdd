@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.0 - Manual de usuario y version
+
+Documentacion completa para usuarios finales y comando de version.
+
+### Incluye
+
+- README completo como manual de usuario con casos nuevo/existente.
+- Comando `/pi:99-version` para conocer la version instalada.
+- AGENTS.md, docs/flujo-de-trabajo.md y docs/arquitectura.md actualizados.
+- Guia paso a paso para principiantes.
+
 ## 1.5.0 - Orquestador completo
 
 Ciclo SDD/TDD completo desde init hasta cierre.

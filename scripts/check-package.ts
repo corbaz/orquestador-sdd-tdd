@@ -28,6 +28,7 @@ const requiredCommands = [
   "pi:99-fix",
   "pi:99-migrate",
   "pi:99-report",
+  "pi:99-version",
 ];
 
 const failures: string[] = [];

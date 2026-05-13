@@ -1,4 +1,7 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { registerCaptureSessionHook } from "./hooks/capture-session.ts";
 import { registerCompactContextHook } from "./hooks/compact-context.ts";
 import { registerProtectSecretsHook } from "./hooks/protect-secrets.ts";
@@ -18,6 +21,10 @@ import {
   type ProjectValidationReport,
   type WorkflowStep,
 } from "./lib/persistence.ts";
+
+const ORCHESTRATOR_VERSION = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8"),
+).version as string;
 
 type CommandDefinition = {
   step: WorkflowStep;
@@ -195,6 +202,15 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       );
     },
   });
+
+  pi.registerCommand("pi:99-version", {
+    description: "Muestra la version instalada del orquestador.",
+    handler: async (_args: string, ctx: any) => {
+      const message = buildVersionMessage(ORCHESTRATOR_VERSION);
+      ctx?.ui?.notify?.(`Orquestador version ${ORCHESTRATOR_VERSION}`, "info");
+      sendGuidance(pi, message, message);
+    },
+  });
 }
 
 function buildGuideMessage(definition: CommandDefinition, completedSteps: WorkflowStep[]): string {
@@ -319,6 +335,21 @@ function buildFixMessage(report: ProjectFixReport): string {
     "Siguiente paso:",
     "- Revisar los cambios aplicados.",
     "- /pi:99-fix no avanza pasos del flujo SDD/TDD.",
+    "",
+  ].join("\n");
+}
+
+function buildVersionMessage(version: string): string {
+  return [
+    "# pi:99-version",
+    "",
+    `Orquestador SDD/TDD version ${version}`,
+    "",
+    "Comandos disponibles:",
+    "- Flujo: /pi:01-init a /pi:09-review",
+    "- Auxiliares: /pi:99-doctor, /pi:99-migrate, /pi:99-report, /pi:99-fix",
+    "",
+    "Documentacion: https://github.com/corbaz/orquestador-sdd-tdd",
     "",
   ].join("\n");
 }

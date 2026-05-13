@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-El paquete organiza un flujo SDD/TDD en Pi mediante extension, comandos, hooks, skills, prompts y persistencia minima.
+El paquete organiza un flujo SDD/TDD completo en Pi mediante extension, comandos, hooks, skills, prompts y persistencia.
 
 ## Componentes
 
@@ -16,11 +16,16 @@ El paquete organiza un flujo SDD/TDD en Pi mediante extension, comandos, hooks, 
 - `/pi:04-spec`
 - `/pi:05-design`
 - `/pi:06-tasks`
+- `/pi:07-apply`
+- `/pi:08-verify`
+- `/pi:09-review`
 - `/pi:99-doctor`
+- `/pi:99-fix`
 - `/pi:99-migrate`
 - `/pi:99-report`
+- `/pi:99-version`
 
-Cada comando del flujo explica que hace, cual es el proximo paso y envia una guia visible para orientar al agente. `/pi:99-doctor`, `/pi:99-migrate` y `/pi:99-report` quedan fuera del flujo numerado: diagnostican, preparan convenciones o generan evidencia sin avanzar pasos SDD.
+Los comandos del flujo explican que hace cada paso y envian una guia visible al agente. Los comandos `/pi:99-*` quedan fuera del flujo numerado: diagnostican, preparan convenciones, generan evidencia o corrigen sin avanzar pasos SDD.
 
 ### Hooks
 
@@ -33,20 +38,35 @@ Cada comando del flujo explica que hace, cual es el proximo paso y envia una gui
 
 `extensions/lib/paths.ts` define rutas globales y locales.
 
-`extensions/lib/persistence.ts` crea SQL inicial, metadata JSON y placeholders `.sqlite`; el adapter SQLite real queda fuera de MVP1 para no exigir una dependencia nativa.
+`extensions/lib/persistence.ts` centraliza:
 
-En MVP2 tambien centraliza mantenimiento seguro de `.gitignore` para estado local del orquestador y ruido comun del sistema operativo.
-
-`runProjectDoctor()` reporta hallazgos, correcciones aplicadas, artefactos SDD esperados segun los pasos completados y coherencia basica entre propuesta, especificacion, diseno y tareas. No crea documentos SDD ni avanza metadata.
+- Creacion de estado local y SQLite
+- Mantenimiento seguro de `.gitignore`
+- Diagnostico, migracion, coherencia SDD, reportes y correcciones
+- `runProjectDoctor()` reporta hallazgos, correcciones aplicadas, artefactos SDD esperados segun los pasos completados y coherencia entre fases
+- SQLite se activa automaticamente al inicializar un proyecto
 
 ### Skills y prompts
 
 Los skills dan instrucciones operativas por fase. Los prompts numerados ofrecen entradas reutilizables para cada comando.
 
-## Decision MVP1
+## Decisiones
 
-La automatizacion profunda queda fuera. El valor principal es imponer una secuencia sana: entender, proponer, especificar, disenar, partir tareas y recien despues aplicar.
+### Flujo principal
 
-## Decision MVP2
+- `/pi:01-*` a `/pi:08-*`: pasos ordenados del ciclo SDD/TDD.
+- `/pi:09-*`: cierre de ciclo.
+- No se pueden saltar pasos. El hook `validate-workflow-step` bloquea pasos adelantados.
 
-Los comandos auxiliares usan la familia `/pi:99-*`. Esto deja espacio para que el flujo principal crezca con comandos `/pi:01-*` a `/pi:98-*` sin mezclar mantenimiento con avance de etapas.
+### Comandos auxiliares
+
+- `/pi:99-*`: reservados para diagnostico, migracion, mantenimiento, reportes, correcciones y soporte.
+- No avanzan metadata del flujo.
+
+### Produccion minima
+
+- Paquete versionado.
+- Tests locales (package, doctor/migracion, workflow, coherencia).
+- CI remoto.
+- Documentacion de uso y criterio de produccion.
+- SQLite persistente por defecto.
