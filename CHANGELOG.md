@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.11.0 - 
+
+### Commits
+
+ddf9baa feat: colored startup banner with ansi
+
 ## 1.10.2 - 
 
 ### Commits
