@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.2 - 
+
+### Commits
+
+36ea70a fix: improved descriptions for each command step
+
 ## 1.12.1 - 
 
 ### Commits
