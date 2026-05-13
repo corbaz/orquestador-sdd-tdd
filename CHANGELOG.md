@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.0 - 
+
+### Commits
+
+3aa3231 feat: add ayuda command and step footers
+
 ## 1.11.1 - 
 
 ### Commits
