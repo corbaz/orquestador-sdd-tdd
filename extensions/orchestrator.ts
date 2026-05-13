@@ -26,6 +26,8 @@ const ORCHESTRATOR_VERSION = JSON.parse(
   readFileSync(join(dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8"),
 ).version as string;
 
+const GITHUB_API = "https://api.github.com/repos/corbaz/orquestador-sdd-tdd/releases/latest";
+
 type CommandDefinition = {
   step: WorkflowStep;
   command: string;
@@ -204,10 +206,21 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   });
 
   pi.registerCommand("pi:99-version", {
-    description: "Muestra la version instalada del orquestador.",
+    description: "Muestra la version instalada del orquestador y compara con GitHub.",
     handler: async (_args: string, ctx: any) => {
-      const message = buildVersionMessage(ORCHESTRATOR_VERSION);
-      ctx?.ui?.notify?.(`Orquestador version ${ORCHESTRATOR_VERSION}`, "info");
+      let latest = "";
+      try {
+        const response = await fetch(GITHUB_API, { method: "GET", headers: { Accept: "application/vnd.github.v3+json", "User-Agent": "orquestador-sdd-tdd" } });
+        if (response.ok) {
+          const data = (await response.json()) as { tag_name: string };
+          latest = data.tag_name.replace(/^v/, "");
+        }
+      } catch {
+        // no internet, no problem
+      }
+
+      const message = buildVersionMessage(ORCHESTRATOR_VERSION, latest);
+      ctx?.ui?.notify?.(`Orquestador version ${ORCHESTRATOR_VERSION}${latest ? ` (ultimo: ${latest})` : ""}`, "info");
       sendGuidance(pi, message, message);
     },
   });
@@ -339,12 +352,18 @@ function buildFixMessage(report: ProjectFixReport): string {
   ].join("\n");
 }
 
-function buildVersionMessage(version: string): string {
+function buildVersionMessage(version: string, latest?: string): string {
+  const updateLine = latest && latest !== version
+    ? `\nActualizacion disponible: v${version} → v${latest}\nEjecuta: pi update git:github.com/corbaz/orquestador-sdd-tdd\n`
+    : latest
+    ? "\nEstas al dia.\n"
+    : "\nNo se pudo verificar la ultima version (sin conexion?).\n";
+
   return [
     "# pi:99-version",
     "",
-    `Orquestador SDD/TDD version ${version}`,
-    "",
+    `Orquestador SDD/TDD version ${version}${latest ? ` (ultimo: ${latest})` : ""}`,
+    updateLine,
     "Comandos disponibles:",
     "- Flujo: /pi:01-init a /pi:09-review",
     "- Auxiliares: /pi:99-doctor, /pi:99-migrate, /pi:99-report, /pi:99-fix",
