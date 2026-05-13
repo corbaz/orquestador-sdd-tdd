@@ -6,8 +6,9 @@
   "packageManager": "bun@1.3.14",
   "private": false,
   "scripts": {
-    "check": "bun run check:package && bun run test:doctor && bun run test:workflow",
+    "check": "bun run check:package && bun run test:doctor && bun run test:workflow && bun run check:version",
     "check:package": "bun scripts/check-package.ts",
+    "check:version": "bun scripts/check-version.ts",
     "test:doctor": "bun scripts/test-doctor.ts",
     "test:workflow": "bun scripts/test-workflow.ts"
   },
