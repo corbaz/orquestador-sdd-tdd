@@ -185,6 +185,10 @@ export function ensurePersistenceFiles(projectRoot = process.cwd()): ProjectMeta
   initProjectDatabase(projectRoot);
   ensureProjectGitignoreEntries(projectRoot);
 
+  const docsSddPath = path.join(projectRoot, "docs", "sdd");
+  fs.mkdirSync(docsSddPath, { recursive: true });
+  ensureAgentsInstructions(projectRoot);
+
   const metadata = readProjectMetadata(projectRoot) ?? createEmptyMetadata(projectRoot);
   writeProjectMetadata(metadata, projectRoot);
   return metadata;
