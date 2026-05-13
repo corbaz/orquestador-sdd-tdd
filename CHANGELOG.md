@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.2 - 
+
+### Commits
+
+295646b fix: plain text banner for windows compat
+
 ## 1.10.1 - 
 
 ### Commits
