@@ -80,6 +80,20 @@ export type ProjectDoctorReport = {
   issues: ProjectDoctorIssue[];
 };
 
+export type ProjectMigrationReport = {
+  projectRoot: string;
+  gitRoot: string | null;
+  gitignorePath: string | null;
+  addedGitignoreEntries: string[];
+  docsSddCreated: boolean;
+  agentsPath: string;
+  agentsAction: "created" | "updated" | "unchanged";
+  doctor: ProjectDoctorReport;
+};
+
+const AGENTS_MANAGED_START = "<!-- orquestador-sdd-tdd:start -->";
+const AGENTS_MANAGED_END = "<!-- orquestador-sdd-tdd:end -->";
+
 export function createInitialSchemaSql(scope: "global" | "project"): string {
   return [
     "-- orquestador-sdd-tdd MVP schema",
@@ -220,6 +234,70 @@ export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorRepo
     sddArtifacts,
     issues,
   };
+}
+
+export function runProjectMigration(projectRoot = process.cwd()): ProjectMigrationReport {
+  const gitRoot = findGitRoot(projectRoot);
+  const gitignoreResult = gitRoot ? ensureGitignoreEntries(gitRoot, DEFAULT_GITIGNORE_ENTRIES) : null;
+  const docsSddPath = path.join(projectRoot, "docs", "sdd");
+  const docsSddCreated = !fs.existsSync(docsSddPath);
+  fs.mkdirSync(docsSddPath, { recursive: true });
+  const agentsResult = ensureAgentsInstructions(projectRoot);
+  const doctor = runProjectDoctor(projectRoot);
+
+  return {
+    projectRoot,
+    gitRoot,
+    gitignorePath: gitignoreResult?.gitignorePath ?? null,
+    addedGitignoreEntries: gitignoreResult?.addedEntries ?? [],
+    docsSddCreated,
+    agentsPath: agentsResult.path,
+    agentsAction: agentsResult.action,
+    doctor,
+  };
+}
+
+function ensureAgentsInstructions(projectRoot: string): { path: string; action: "created" | "updated" | "unchanged" } {
+  const agentsPath = path.join(projectRoot, "AGENTS.md");
+  const block = buildAgentsManagedBlock();
+
+  if (!fs.existsSync(agentsPath)) {
+    fs.writeFileSync(agentsPath, `# Agent Instructions\n\n${block}\n`, "utf8");
+    return { path: agentsPath, action: "created" };
+  }
+
+  const existing = fs.readFileSync(agentsPath, "utf8");
+  if (existing.includes(AGENTS_MANAGED_START) && existing.includes(AGENTS_MANAGED_END)) {
+    const updated = existing.replace(
+      new RegExp(`${escapeRegExp(AGENTS_MANAGED_START)}[\\s\\S]*?${escapeRegExp(AGENTS_MANAGED_END)}`),
+      block.trimEnd(),
+    );
+    if (updated === existing) return { path: agentsPath, action: "unchanged" };
+    fs.writeFileSync(agentsPath, updated.endsWith("\n") ? updated : `${updated}\n`, "utf8");
+    return { path: agentsPath, action: "updated" };
+  }
+
+  const prefix = existing.length > 0 && !existing.endsWith("\n") ? "\n" : "";
+  fs.writeFileSync(agentsPath, `${existing}${prefix}\n${block}\n`, "utf8");
+  return { path: agentsPath, action: "updated" };
+}
+
+function buildAgentsManagedBlock(): string {
+  return [
+    AGENTS_MANAGED_START,
+    "## orquestador-sdd-tdd",
+    "",
+    "- Usar el flujo `/pi:01-init` a `/pi:06-tasks` para cambios SDD/TDD.",
+    "- Usar `/pi:99-doctor` para diagnostico, mantenimiento seguro y coherencia entre fases.",
+    "- Guardar artefactos SDD versionables en `docs/sdd/`.",
+    "- No editar manualmente `.pi/orquestador-sdd-tdd/` salvo mantenimiento deliberado.",
+    "- Ejecutar `bun run check` en el repo del orquestador antes de publicar cambios del package.",
+    AGENTS_MANAGED_END,
+  ].join("\n");
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function readSddDocuments(projectRoot: string): SddDocumentSet {

@@ -23,6 +23,12 @@ pi --no-skills
 /pi:99-doctor
 ```
 
+Para preparar convenciones versionables del proyecto:
+
+```text
+/pi:99-migrate
+```
+
 ## Contrato
 
 | Tema | Decision |
@@ -33,6 +39,7 @@ pi --no-skills
 | Correcciones actuales | Agrega `.pi/` y `.DS_Store` si faltan. |
 | Artefactos SDD | Revisa `docs/sdd/` segun los pasos completados en metadata. |
 | Coherencia SDD | Verifica referencias entre fases, cobertura de requisitos `MUST` y conflictos conservadores con fuera de alcance. |
+| Migracion | `/pi:99-migrate` crea `docs/sdd/` y agrega un bloque gestionado en `AGENTS.md` sin borrar contenido existente. |
 | Seguridad | No modifica codigo productivo ni crea artefactos SDD faltantes automaticamente. |
 
 ## Hallazgos posibles

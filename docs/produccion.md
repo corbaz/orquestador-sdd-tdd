@@ -13,6 +13,7 @@ bun run check
 En el proyecto objetivo:
 
 ```text
+/pi:99-migrate
 /pi:99-doctor
 ```
 
@@ -30,6 +31,7 @@ Resultado esperado:
 | --- | --- |
 | Instalacion | El package builda y declara comandos esperados. |
 | Mantenimiento | `.pi/` y `.DS_Store` quedan ignorados en Git. |
+| Migracion | `AGENTS.md` conserva contenido existente y contiene un bloque del orquestador. |
 | Flujo | Metadata conserva pasos completados y paso actual. |
 | Artefactos | `docs/sdd/` se revisa segun el avance real del flujo. |
 | Coherencia | Requisitos `MUST` deben aparecer en diseno y tareas. |

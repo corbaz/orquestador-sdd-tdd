@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runProjectDoctor, writeProjectMetadata } from "../extensions/lib/persistence.ts";
+import { runProjectDoctor, runProjectMigration, writeProjectMetadata } from "../extensions/lib/persistence.ts";
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "orquestador-doctor-test-"));
 
@@ -13,6 +13,7 @@ try {
   testRequirementCoverageAcrossDesignAndTasks();
   testRequirementRangeCoverage();
   testOutOfScopeConflictDetection();
+  testProjectMigrationCreatesConventions();
   console.log("Doctor validation OK");
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
@@ -140,6 +141,27 @@ function testOutOfScopeConflictDetection(): void {
 
   const report = runProjectDoctor(projectRoot);
   assert.equal(report.issues.some((issue) => issue.code === "sdd-out-of-scope-conflict" && issue.severity === "error"), true);
+}
+
+function testProjectMigrationCreatesConventions(): void {
+  const projectRoot = createProject("project-migration", true);
+  fs.writeFileSync(path.join(projectRoot, "AGENTS.md"), "# Existing\n", "utf8");
+
+  const report = runProjectMigration(projectRoot);
+  assert.deepEqual(report.addedGitignoreEntries, [".pi/", ".DS_Store"]);
+  assert.equal(report.docsSddCreated, true);
+  assert.equal(report.agentsAction, "updated");
+  assert.equal(fs.existsSync(path.join(projectRoot, "docs", "sdd")), true);
+
+  const agents = fs.readFileSync(path.join(projectRoot, "AGENTS.md"), "utf8");
+  assert.equal(agents.includes("# Existing"), true);
+  assert.equal(agents.includes("orquestador-sdd-tdd:start"), true);
+  assert.equal(agents.includes("/pi:99-doctor"), true);
+
+  const secondReport = runProjectMigration(projectRoot);
+  assert.deepEqual(secondReport.addedGitignoreEntries, []);
+  assert.equal(secondReport.docsSddCreated, false);
+  assert.equal(secondReport.agentsAction, "unchanged");
 }
 
 function createProject(name: string, withGit: boolean): string {

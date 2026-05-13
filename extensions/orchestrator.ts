@@ -9,7 +9,9 @@ import {
   ensurePersistenceFiles,
   readProjectMetadata,
   runProjectDoctor,
+  runProjectMigration,
   type ProjectDoctorReport,
+  type ProjectMigrationReport,
   type WorkflowStep,
 } from "./lib/persistence.ts";
 
@@ -117,6 +119,22 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       );
     },
   });
+
+  pi.registerCommand("pi:99-migrate", {
+    description: "Prepara convenciones seguras del orquestador en el proyecto actual.",
+    handler: async (_args: string, ctx: any) => {
+      const projectRoot = ctx?.cwd ?? process.cwd();
+      const report = runProjectMigration(projectRoot);
+      const message = buildMigrationMessage(report);
+
+      ctx?.ui?.notify?.("Migracion segura del orquestador ejecutada. Revisa el reporte.", "info");
+      sendGuidance(
+        pi,
+        "Resume el reporte de /pi:99-migrate en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
+        message,
+      );
+    },
+  });
 }
 
 function buildGuideMessage(definition: CommandDefinition, completedSteps: WorkflowStep[]): string {
@@ -187,4 +205,38 @@ function getArtifactStatus(exists: boolean, required: boolean): string {
   if (required && !exists) return "Falta";
   if (!required && exists) return "Existe";
   return "No requerido";
+}
+
+function buildMigrationMessage(report: ProjectMigrationReport): string {
+  return [
+    "# pi:99-migrate",
+    "",
+    "Migracion segura de convenciones del orquestador.",
+    "",
+    `Proyecto: ${report.projectRoot}`,
+    `Git: ${report.gitRoot ?? "no detectado"}`,
+    "",
+    "Cambios aplicados:",
+    report.gitRoot
+      ? `- .gitignore: ${report.addedGitignoreEntries.length > 0 ? `agregado ${report.addedGitignoreEntries.join(", ")}` : "sin cambios necesarios"}`
+      : "- .gitignore: omitido porque no se detecto repositorio Git",
+    `- docs/sdd/: ${report.docsSddCreated ? "creado" : "existente"}`,
+    `- AGENTS.md: ${formatAgentsAction(report.agentsAction)}`,
+    "",
+    "Resultado del doctor posterior:",
+    ...(report.doctor.issues.length > 0
+      ? report.doctor.issues.map((issue) => `- ${issue.severity.toUpperCase()} [${issue.code}]: ${issue.message}`)
+      : ["- Sin hallazgos pendientes."]),
+    "",
+    "Siguiente paso:",
+    "- Revisar los cambios versionables antes de commitear en el proyecto usuario.",
+    "- /pi:99-migrate no avanza pasos del flujo SDD/TDD.",
+    "",
+  ].join("\n");
+}
+
+function formatAgentsAction(action: ProjectMigrationReport["agentsAction"]): string {
+  if (action === "created") return "creado";
+  if (action === "updated") return "actualizado";
+  return "sin cambios necesarios";
 }
