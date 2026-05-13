@@ -107,16 +107,11 @@ cd /ruta/de/tu/proyecto
 pi --no-skills
 ```
 
-3. Prepara las convenciones del orquestador:
+3. Revisa el estado del proyecto con el doctor:
 
 ```text
-/pi:99-migrate
+/pi:99-doctor
 ```
-
-Esto crea:
-- `.gitignore` con `.pi/` y `.DS_Store` (si no existen)
-- `docs/sdd/` para los artefactos SDD
-- `AGENTS.md` con instrucciones basicas
 
 4. Ejecuta un diagnostico:
 
@@ -189,7 +184,20 @@ El estado del flujo se guarda en `.pi/orquestador-sdd-tdd/metadata.json`.
 
 ### 1. Init (`/pi:01-init`)
 
-Crea el estado local del orquestador en `.pi/orquestador-sdd-tdd/`. No necesita nada del proyecto.
+Crea el estado local del orquestador y prepara las convenciones del proyecto.
+
+**Que hace internamente:**
+
+| Accion | Detalle |
+| --- | --- |
+| Estado local | Crea `.pi/orquestador-sdd-tdd/metadata.json` con el paso actual y completados |
+| SQLite | Inicializa base de datos local con schema de tablas |
+| `.gitignore` | Agrega `.pi/` y `.DS_Store` si faltan |
+| `docs/sdd/` | Crea el directorio para artefactos SDD |
+| `AGENTS.md` | Agrega bloque gestionado con instrucciones para el agente |
+| Objetivo | Prepara el flujo para definir el objetivo en discovery |
+
+**Por que:** sin init, el orquestador no tiene memoria de donde estas en el flujo, ni las convenciones minimas para trabajar limpio.
 
 ```text
 /pi:01-init
