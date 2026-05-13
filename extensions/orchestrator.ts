@@ -58,7 +58,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Crea una propuesta SDD con alcance, motivacion y no-objetivos.",
     body: "Convierte el discovery en una propuesta revisable antes de escribir especificaciones.",
     next: "Siguiente paso: /pi:04-spec para definir requisitos y escenarios verificables.",
-    prompt: "Redacta una propuesta SDD en espanol. NO la escribas sola. PREGUNTA al usuario una por una cada seccion: 1) '¿Cual es el problema que resuelve este cambio?' 2) '¿Cual es el objetivo?' 3) '¿Que entra en el alcance?' 4) '¿Que queda fuera de alcance?' 5) '¿Que riesgos ves?' 6) '¿Como deberiamos validar?' Espera su respuesta en cada paso. Despues de cada respuesta, escribi la seccion en el archivo de propuesta. Al final, mostra el resumen y preguntale si quiere modificar algo.",
+    prompt: "Redacta una propuesta SDD. PRIMERO: mostra al usuario el resumen del discovery y preguntale: '¿Este analisis refleja bien el estado del proyecto? ¿Falta algo que quieras agregar?' Iter hasta que diga 'si, esta bien'. DESPUES, empeza la propuesta. PREGUNTA una por una: 1) '¿Cual es el problema concreto que resuelve este cambio?' 2) '¿Cual es el objetivo?' 3) '¿Que entra en el alcance?' 4) '¿Que queda fuera de alcance?' 5) '¿Que riesgos ves?' 6) '¿Como deberiamos validar?' Escribi cada seccion despues de cada respuesta. Al final, mostra el resumen y pregunta: '¿Queres modificar, agregar o quitar algo?' Segui iterando hasta que el usuario diga 'listo' o 'esta bien'.",
   },
   {
     step: "04-spec",
@@ -66,7 +66,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Genera especificaciones SDD con requisitos y escenarios.",
     body: "Define comportamiento observable y criterios de aceptacion antes del diseno tecnico.",
     next: "Siguiente paso: /pi:05-design para decidir la arquitectura de implementacion.",
-    prompt: "Escribe la especificacion SDD. PREGUNTA al usuario uno por uno: 1) '¿Que requisitos MUST (obligatorios) tiene este cambio?' 2) '¿Que requisitos SHOULD (deseables) tiene?' 3) '¿Que escenarios Given/When/Then deberiamos contemplar?' Para cada respuesta, agregala a la especificacion. Al final, preguntale si quiere agregar mas escenarios.",
+    prompt: "PRIMERO: mostrale al usuario la propuesta actual de docs/sdd/ y preguntale: '¿Esta propuesta esta completa para vos? ¿Queres modificar algo o agregar algo mas?' Si el usuario quiere cambios, ayudalo a modificar la propuesta iterando hasta que diga 'listo' o 'dale'. RECIEN DESPUES de su confirmacion, empeza a escribir la especificacion SDD. Para la spec, PREGUNTA uno por uno: 1) '¿Que requisitos MUST (obligatorios) tiene este cambio?' 2) '¿Que requisitos SHOULD (deseables) tiene?' 3) '¿Que escenarios Given/When/Then deberiamos contemplar?' Agrega cada respuesta a la especificacion. Al final, preguntale si quiere agregar mas escenarios.",
   },
   {
     step: "05-design",
@@ -74,7 +74,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Produce el diseno tecnico que implementara la especificacion.",
     body: "Documenta componentes, contratos, persistencia, riesgos y decisiones de arquitectura.",
     next: "Siguiente paso: /pi:06-tasks para partir el trabajo en tareas implementables.",
-    prompt: "Crea el diseno tecnico SDD. PREGUNTA al usuario: 1) '¿Que componentes o modulos se ven afectados?' 2) '¿Que decisiones de arquitectura hay que tomar?' 3) '¿Que contratos o interfaces se modifican?' 4) '¿Como se va a testear?' 5) '¿Que riesgos tecnicos identificas?' Espera cada respuesta antes de continuar y documentala en el diseno.",
+    prompt: "PRIMERO: mostra al usuario la especificacion actual y preguntale: '¿La especificacion esta completa? ¿Queres revisar o agregar algo antes de pasar al diseno?' Si pide cambios, ayudalo a modificar la especificacion. RECIEN DESPUES de su confirmacion, empeza el diseno. PREGUNTA uno por uno: 1) '¿Que componentes o modulos se ven afectados?' 2) '¿Que decisiones de arquitectura hay que tomar?' 3) '¿Que contratos o interfaces se modifican?' 4) '¿Como se va a testear?' 5) '¿Que riesgos tecnicos identificas?' Documenta cada respuesta y al final preguntale si quiere agregar algo mas.",
   },
   {
     step: "06-tasks",
@@ -82,7 +82,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Divide el diseno en tareas concretas para aplicar con TDD cuando corresponda.",
     body: "Genera una lista ordenada de tareas, dependencias, validaciones y limites de revision.",
     next: "Siguiente paso: /pi:07-apply para aplicar las tareas con TDD en lotes pequenos.",
-    prompt: "Descompone el diseno en tareas implementables. PREGUNTA al usuario: 1) '¿En que orden preferis implementar las tareas?' 2) '¿Cual es el tamano maximo de revision que te sentis comodo?' 3) '¿Preferis TDD estricto o aplicacion primero?' Genera las tareas con dependencias, validaciones y forecast de revision. Muestra el resultado y pregunta si quiere ajustar algo.",
+    prompt: "PRIMERO: mostra al usuario el diseno actual y preguntale: '¿El diseno esta completo? ¿Queres modificar algo antes de pasar a tareas?' Si pide cambios, ayudalo. RECIEN DESPUES de su confirmacion, genera las tareas. PREGUNTA: 1) '¿En que orden preferis implementar las tareas?' 2) '¿Cual es el tamano maximo de revision que te sentis comodo?' 3) '¿Preferis TDD estricto o aplicacion primero?' Genera las tareas con dependencias, validaciones y forecast. Muestra el resultado y pregunta si quiere ajustar algo.",
   },
   {
     step: "07-apply",
