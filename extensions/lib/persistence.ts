@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Database } from "bun:sqlite";
+import { createRequire } from "node:module";
 import {
   getGlobalDatabasePath,
   getGlobalSchemaPath,
@@ -11,6 +11,20 @@ import {
   getProjectStateDir,
   PACKAGE_ID,
 } from "./paths.ts";
+
+let SQLiteDatabase: new (path: string) => {
+  run(sql: string, ...params: unknown[]): unknown;
+  close(): void;
+  query(sql: string, ...params: unknown[]): { all(): unknown[] };
+} | null = null;
+
+try {
+  const _require = createRequire(import.meta.url);
+  const sqlite = _require("bun:sqlite") as { Database: new (path: string) => { run(sql: string, ...params: unknown[]): unknown; close(): void; query(sql: string, ...params: unknown[]): { all(): unknown[] } } };
+  SQLiteDatabase = sqlite.Database;
+} catch {
+  // bun:sqlite no disponible fuera de Bun
+}
 
 export type WorkflowStep =
   | "01-init"
@@ -235,6 +249,7 @@ export function createEmptyMetadata(projectRoot = process.cwd()): ProjectMetadat
 }
 
 export function initProjectDatabase(projectRoot = process.cwd(), force = false): void {
+  if (!SQLiteDatabase) return;
   const dbPath = getLocalDatabasePath(projectRoot);
   const schemaPath = getLocalSchemaPath(projectRoot);
 
@@ -242,7 +257,7 @@ export function initProjectDatabase(projectRoot = process.cwd(), force = false):
 
   if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) return;
 
-  const db = new Database(dbPath);
+  const db = new SQLiteDatabase(dbPath);
   db.run("PRAGMA journal_mode=WAL");
   db.run("PRAGMA foreign_keys=ON");
 
@@ -254,6 +269,7 @@ export function initProjectDatabase(projectRoot = process.cwd(), force = false):
 }
 
 export function initGlobalDatabase(force = false): void {
+  if (!SQLiteDatabase) return;
   const dbPath = getGlobalDatabasePath();
   const schemaPath = getGlobalSchemaPath();
 
@@ -261,7 +277,7 @@ export function initGlobalDatabase(force = false): void {
 
   if (fs.existsSync(dbPath) && fs.statSync(dbPath).size > 0) return;
 
-  const db = new Database(dbPath);
+  const db = new SQLiteDatabase(dbPath);
 
   if (fs.existsSync(schemaPath)) {
     const schema = fs.readFileSync(schemaPath, "utf8");
@@ -270,7 +286,8 @@ export function initGlobalDatabase(force = false): void {
   db.close();
 }
 
-export function openProjectDatabase(projectRoot = process.cwd()): Database | null {
+export function openProjectDatabase(projectRoot = process.cwd()): unknown {
+  if (!SQLiteDatabase) return null;
   const dbPath = getLocalDatabasePath(projectRoot);
 
   if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
@@ -278,13 +295,14 @@ export function openProjectDatabase(projectRoot = process.cwd()): Database | nul
   }
 
   try {
-    return new Database(dbPath);
+    return new SQLiteDatabase(dbPath);
   } catch {
     return null;
   }
 }
 
-export function openGlobalDatabase(): Database | null {
+export function openGlobalDatabase(): unknown {
+  if (!SQLiteDatabase) return null;
   const dbPath = getGlobalDatabasePath();
 
   if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) {
@@ -292,7 +310,7 @@ export function openGlobalDatabase(): Database | null {
   }
 
   try {
-    return new Database(dbPath);
+    return new SQLiteDatabase(dbPath);
   } catch {
     return null;
   }
