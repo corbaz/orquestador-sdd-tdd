@@ -18,8 +18,9 @@ El paquete organiza un flujo SDD/TDD en Pi mediante extension, comandos, hooks, 
 - `/pi:06-tasks`
 - `/pi:99-doctor`
 - `/pi:99-migrate`
+- `/pi:99-report`
 
-Cada comando del flujo explica que hace, cual es el proximo paso y envia una guia visible para orientar al agente. `/pi:99-doctor` y `/pi:99-migrate` quedan fuera del flujo numerado: diagnostican o preparan convenciones seguras sin avanzar pasos SDD.
+Cada comando del flujo explica que hace, cual es el proximo paso y envia una guia visible para orientar al agente. `/pi:99-doctor`, `/pi:99-migrate` y `/pi:99-report` quedan fuera del flujo numerado: diagnostican, preparan convenciones o generan evidencia sin avanzar pasos SDD.
 
 ### Hooks
 

@@ -2,7 +2,7 @@
 
 El orquestador esta listo para uso controlado cuando el paquete pasa sus checks locales y el proyecto objetivo no presenta errores en `/pi:99-doctor`.
 
-Version de referencia: `1.0.0`.
+Version de referencia: `1.1.0`.
 
 ## Camino rapido
 
@@ -17,6 +17,7 @@ En el proyecto objetivo:
 ```text
 /pi:99-migrate
 /pi:99-doctor
+/pi:99-report
 ```
 
 Resultado esperado:
@@ -38,6 +39,7 @@ Resultado esperado:
 | Artefactos | `docs/sdd/` se revisa segun el avance real del flujo. |
 | Coherencia | Requisitos `MUST` deben aparecer en diseno y tareas. |
 | Alcance | Temas fuera de alcance no deben reaparecer como implementacion activa. |
+| Evidencia | `docs/sdd/99-reporte-validacion.md` resume estado final y hallazgos. |
 
 ## Pruebas del paquete
 

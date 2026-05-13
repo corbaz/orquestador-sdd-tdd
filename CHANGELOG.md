@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 - Reportes versionables
+
+Agrega evidencia versionable para revisiones tecnicas o direccion.
+
+### Incluye
+
+- Nuevo comando `/pi:99-report`.
+- Generacion de `docs/sdd/99-reporte-validacion.md`.
+- Estado final `apto`, `revisar` o `bloqueado` basado en hallazgos del doctor.
+- Tests para reportes aptos y bloqueados.
+
 ## 1.0.0 - Produccion minima
 
 Primera version lista para uso controlado del orquestador SDD/TDD en Pi.

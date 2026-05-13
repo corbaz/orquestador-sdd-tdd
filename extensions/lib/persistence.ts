@@ -91,6 +91,14 @@ export type ProjectMigrationReport = {
   doctor: ProjectDoctorReport;
 };
 
+export type ProjectValidationReport = {
+  projectRoot: string;
+  reportPath: string;
+  status: "apto" | "revisar" | "bloqueado";
+  doctor: ProjectDoctorReport;
+  written: boolean;
+};
+
 const AGENTS_MANAGED_START = "<!-- orquestador-sdd-tdd:start -->";
 const AGENTS_MANAGED_END = "<!-- orquestador-sdd-tdd:end -->";
 
@@ -255,6 +263,70 @@ export function runProjectMigration(projectRoot = process.cwd()): ProjectMigrati
     agentsAction: agentsResult.action,
     doctor,
   };
+}
+
+export function runProjectValidationReport(projectRoot = process.cwd()): ProjectValidationReport {
+  const doctor = runProjectDoctor(projectRoot);
+  const status = resolveValidationStatus(doctor.issues);
+  const reportPath = path.join(projectRoot, "docs", "sdd", "99-reporte-validacion.md");
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  fs.writeFileSync(reportPath, buildValidationReportMarkdown(status, doctor), "utf8");
+
+  return {
+    projectRoot,
+    reportPath,
+    status,
+    doctor,
+    written: true,
+  };
+}
+
+function resolveValidationStatus(issues: ProjectDoctorIssue[]): ProjectValidationReport["status"] {
+  if (issues.some((issue) => issue.severity === "error")) return "bloqueado";
+  if (issues.some((issue) => issue.severity === "warning")) return "revisar";
+  return "apto";
+}
+
+function buildValidationReportMarkdown(status: ProjectValidationReport["status"], doctor: ProjectDoctorReport): string {
+  const artifactRows = doctor.sddArtifacts.map(
+    (artifact) => `| ${artifact.path} | ${artifact.required ? "si" : "no"} | ${artifact.exists ? "OK" : "Falta"} |`,
+  );
+  const issueRows = doctor.issues.map((issue) => `| ${issue.severity} | ${issue.code} | ${issue.message} |`);
+
+  return [
+    "# Reporte de validacion SDD/TDD",
+    "",
+    `Estado final: **${status}**`,
+    "",
+    "## Resumen",
+    "",
+    `| Campo | Valor |`,
+    `| --- | --- |`,
+    `| Proyecto | ${doctor.projectRoot} |`,
+    `| Git | ${doctor.gitRoot ?? "no detectado"} |`,
+    `| Metadata | ${doctor.hasMetadata ? "detectada" : "no detectada"} |`,
+    `| Paso actual | ${doctor.currentStep ?? "sin iniciar"} |`,
+    `| Pasos completados | ${doctor.completedSteps.map((step) => `/pi:${step}`).join(", ") || "ninguno"} |`,
+    "",
+    "## Artefactos SDD",
+    "",
+    "| Artefacto | Requerido | Estado |",
+    "| --- | --- | --- |",
+    ...artifactRows,
+    "",
+    "## Hallazgos",
+    "",
+    ...(issueRows.length > 0
+      ? ["| Severidad | Codigo | Mensaje |", "| --- | --- | --- |", ...issueRows]
+      : ["Sin hallazgos pendientes."]),
+    "",
+    "## Criterio",
+    "",
+    "- `apto`: sin errores ni warnings pendientes.",
+    "- `revisar`: hay warnings que requieren criterio humano.",
+    "- `bloqueado`: hay errores de coherencia o alcance que deben corregirse antes de avanzar.",
+    "",
+  ].join("\n");
 }
 
 function ensureAgentsInstructions(projectRoot: string): { path: string; action: "created" | "updated" | "unchanged" } {

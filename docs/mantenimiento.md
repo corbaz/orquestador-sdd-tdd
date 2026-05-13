@@ -29,6 +29,12 @@ Para preparar convenciones versionables del proyecto:
 /pi:99-migrate
 ```
 
+Para generar evidencia versionable:
+
+```text
+/pi:99-report
+```
+
 ## Contrato
 
 | Tema | Decision |
@@ -40,6 +46,7 @@ Para preparar convenciones versionables del proyecto:
 | Artefactos SDD | Revisa `docs/sdd/` segun los pasos completados en metadata. |
 | Coherencia SDD | Verifica referencias entre fases, cobertura de requisitos `MUST` y conflictos conservadores con fuera de alcance. |
 | Migracion | `/pi:99-migrate` crea `docs/sdd/` y agrega un bloque gestionado en `AGENTS.md` sin borrar contenido existente. |
+| Reporte | `/pi:99-report` genera `docs/sdd/99-reporte-validacion.md` con estado `apto`, `revisar` o `bloqueado`. |
 | Seguridad | No modifica codigo productivo ni crea artefactos SDD faltantes automaticamente. |
 
 ## Hallazgos posibles

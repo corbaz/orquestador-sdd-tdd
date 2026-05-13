@@ -10,8 +10,10 @@ import {
   readProjectMetadata,
   runProjectDoctor,
   runProjectMigration,
+  runProjectValidationReport,
   type ProjectDoctorReport,
   type ProjectMigrationReport,
+  type ProjectValidationReport,
   type WorkflowStep,
 } from "./lib/persistence.ts";
 
@@ -135,6 +137,22 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       );
     },
   });
+
+  pi.registerCommand("pi:99-report", {
+    description: "Genera un reporte versionable de validacion SDD/TDD del proyecto actual.",
+    handler: async (_args: string, ctx: any) => {
+      const projectRoot = ctx?.cwd ?? process.cwd();
+      const report = runProjectValidationReport(projectRoot);
+      const message = buildValidationReportMessage(report);
+
+      ctx?.ui?.notify?.("Reporte de validacion generado. Revisa docs/sdd/99-reporte-validacion.md.", "info");
+      sendGuidance(
+        pi,
+        "Resume el reporte de /pi:99-report en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
+        message,
+      );
+    },
+  });
 }
 
 function buildGuideMessage(definition: CommandDefinition, completedSteps: WorkflowStep[]): string {
@@ -239,4 +257,27 @@ function formatAgentsAction(action: ProjectMigrationReport["agentsAction"]): str
   if (action === "created") return "creado";
   if (action === "updated") return "actualizado";
   return "sin cambios necesarios";
+}
+
+function buildValidationReportMessage(report: ProjectValidationReport): string {
+  return [
+    "# pi:99-report",
+    "",
+    "Reporte versionable de validacion SDD/TDD generado.",
+    "",
+    `Proyecto: ${report.projectRoot}`,
+    `Archivo: ${report.reportPath}`,
+    `Estado final: ${report.status}`,
+    "",
+    "Hallazgos:",
+    ...(report.doctor.issues.length > 0
+      ? report.doctor.issues.map((issue) => `- ${issue.severity.toUpperCase()} [${issue.code}]: ${issue.message}`)
+      : ["- Sin hallazgos pendientes."]),
+    "",
+    "Siguiente paso:",
+    "- Versionar el reporte si corresponde al proyecto usuario.",
+    "- Si el estado es `bloqueado`, corregir antes de avanzar.",
+    "- /pi:99-report no avanza pasos del flujo SDD/TDD.",
+    "",
+  ].join("\n");
 }

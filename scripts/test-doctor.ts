@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { runProjectDoctor, runProjectMigration, writeProjectMetadata } from "../extensions/lib/persistence.ts";
+import { runProjectDoctor, runProjectMigration, runProjectValidationReport, writeProjectMetadata } from "../extensions/lib/persistence.ts";
 
 const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "orquestador-doctor-test-"));
 
@@ -14,6 +14,7 @@ try {
   testRequirementRangeCoverage();
   testOutOfScopeConflictDetection();
   testProjectMigrationCreatesConventions();
+  testValidationReportStatuses();
   console.log("Doctor validation OK");
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
@@ -162,6 +163,52 @@ function testProjectMigrationCreatesConventions(): void {
   assert.deepEqual(secondReport.addedGitignoreEntries, []);
   assert.equal(secondReport.docsSddCreated, false);
   assert.equal(secondReport.agentsAction, "unchanged");
+}
+
+function testValidationReportStatuses(): void {
+  const aptoRoot = createProject("report-apto", true);
+  writeProjectMetadata(
+    {
+      packageId: "orquestador-sdd-tdd",
+      projectRoot: aptoRoot,
+      currentStep: "06-tasks",
+      completedSteps: ["01-init", "02-discover", "03-propose", "04-spec", "05-design", "06-tasks"],
+      updatedAt: new Date().toISOString(),
+    },
+    aptoRoot,
+  );
+  writeSddArtifacts(aptoRoot, {
+    proposal: "# Propuesta\n",
+    spec: "# Spec\n\n### RQ-001\n\n**Prioridad:** MUST\n",
+    design: "# Diseno\n\nReferencia a docs/sdd/04-especificacion.md y RQ-001.\n",
+    tasks: "# Tareas\n\nReferencia a docs/sdd/05-diseno.md y RQ-001.\n",
+  });
+
+  const aptoReport = runProjectValidationReport(aptoRoot);
+  assert.equal(aptoReport.status, "apto");
+  assert.equal(fs.existsSync(path.join(aptoRoot, "docs", "sdd", "99-reporte-validacion.md")), true);
+  assert.equal(fs.readFileSync(aptoReport.reportPath, "utf8").includes("Estado final: **apto**"), true);
+
+  const blockedRoot = createProject("report-bloqueado", true);
+  writeProjectMetadata(
+    {
+      packageId: "orquestador-sdd-tdd",
+      projectRoot: blockedRoot,
+      currentStep: "06-tasks",
+      completedSteps: ["01-init", "02-discover", "03-propose", "04-spec", "05-design", "06-tasks"],
+      updatedAt: new Date().toISOString(),
+    },
+    blockedRoot,
+  );
+  writeSddArtifacts(blockedRoot, {
+    proposal: "# Propuesta\n\n## 4. Fuera de alcance\n\n- Implementar SQLite real.\n",
+    spec: "# Spec\n\n### RQ-001\n\n**Prioridad:** MUST\n",
+    design: "# Diseno\n\nReferencia a docs/sdd/04-especificacion.md y RQ-001.\n",
+    tasks: "# Tareas\n\nReferencia a docs/sdd/05-diseno.md y RQ-001.\n\n- Implementar SQLite real.\n",
+  });
+
+  const blockedReport = runProjectValidationReport(blockedRoot);
+  assert.equal(blockedReport.status, "bloqueado");
 }
 
 function createProject(name: string, withGit: boolean): string {

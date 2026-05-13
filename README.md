@@ -2,7 +2,7 @@
 
 Paquete global de Pi para guiar proyectos con SDD y TDD paso a paso.
 
-Version actual: `1.0.0` produccion minima.
+Version actual: `1.1.0` con reportes versionables.
 
 ## Objetivo
 
@@ -52,11 +52,14 @@ MVP 2 agrega un comando de diagnostico fuera del flujo numerado:
 ```text
 /pi:99-doctor
 /pi:99-migrate
+/pi:99-report
 ```
 
 `/pi:99-doctor` revisa el proyecto actual, no avanza pasos SDD y aplica solo mantenimiento seguro del orquestador. Por ahora asegura entradas locales de `.gitignore` para `.pi/` y `.DS_Store`, y reporta metadata y artefactos SDD esperados.
 
 `/pi:99-migrate` prepara convenciones versionables seguras: `docs/sdd/`, bloque gestionado en `AGENTS.md` e ignores locales.
+
+`/pi:99-report` genera `docs/sdd/99-reporte-validacion.md` con estado final `apto`, `revisar` o `bloqueado`.
 
 Convencion: los comandos `/pi:99-*` son auxiliares. El flujo principal queda reservado para `/pi:01-*` a `/pi:98-*`.
 
