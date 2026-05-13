@@ -209,13 +209,13 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       let latest = "";
       let fetchError = "";
       try {
-        const response = await fetch("https://api.github.com/repos/corbaz/orquestador-sdd-tdd/releases/latest", {
+        const response = await fetch("https://api.github.com/repos/corbaz/orquestador-sdd-tdd/tags?per_page=1", {
           method: "GET",
           headers: { Accept: "application/vnd.github.v3+json", "User-Agent": "orquestador-sdd-tdd/1.6" },
         });
         if (response.ok) {
-          const data = (await response.json()) as { tag_name: string };
-          latest = data.tag_name.replace(/^v/, "");
+          const data = (await response.json()) as { name: string }[];
+          if (data.length > 0) latest = data[0].name.replace(/^v/, "");
         } else if (response.status === 403 || response.status === 429) {
           fetchError = "límite de API de GitHub alcanzado (esperá un minuto)";
         } else if (response.status === 404) {
