@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.3 - 
+
+### Commits
+
+4627a61 fix: correct pre-push hook ref parsing
+
 ## 1.6.2 - Version auto-validation
 
 `bun run check` ahora valida que `package.json` coincida con el ultimo tag de Git.
