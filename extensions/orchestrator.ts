@@ -239,9 +239,9 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   });
 
   pi.registerCommand("pi:99-ayuda", {
-    description: "Muestra todos los comandos del orquestador.",
+    description: "Muestra todos los comandos del orquestador con descripciones.",
     handler: async (_args: string, ctx: any) => {
-      const message = buildBannerText(ORCHESTRATOR_VERSION);
+      const message = buildAyudaText(ORCHESTRATOR_VERSION);
       ctx?.ui?.notify?.("Comandos del orquestador:", "info");
       sendGuidance(pi, message, message);
     },
@@ -249,27 +249,66 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
 }
 
 function buildBannerText(v: string): string {
+  const C: Record<string, string> = {
+    r: "\x1b[0m",
+    c: "\x1b[36m",
+    g: "\x1b[32m",
+    b: "\x1b[34m",
+    y: "\x1b[90m",
+    B: "\x1b[1m",
+  };
   return [
-    `Orquestador SDD/TDD v${v}`,
+    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `  ${C.c}${C.B}Orquestador SDD/TDD v${v}${C.r}`,
+    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `  ${C.c}FLUJO PRINCIPAL${C.r}`,
+    `  ${C.g}/pi:01-init${C.r}     Iniciar el flujo SDD/TDD`,
+    `  ${C.g}/pi:02-discover${C.r} Relevar el proyecto`,
+    `  ${C.g}/pi:03-propose${C.r}  Redactar propuesta`,
+    `  ${C.g}/pi:04-spec${C.r}     Especificar requisitos`,
+    `  ${C.g}/pi:05-design${C.r}   Disenar arquitectura`,
+    `  ${C.g}/pi:06-tasks${C.r}    Planificar tareas`,
+    `  ${C.g}/pi:07-apply${C.r}    Aplicar con TDD`,
+    `  ${C.g}/pi:08-verify${C.r}   Verificar contra spec`,
+    `  ${C.g}/pi:09-review${C.r}   Cerrar ciclo`,
+    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `  ${C.c}AUXILIARES${C.r}`,
+    `  ${C.b}/pi:99-doctor${C.r}   Diagnosticar el proyecto`,
+    `  ${C.b}/pi:99-migrate${C.r}  Preparar convenciones`,
+    `  ${C.b}/pi:99-report${C.r}   Generar evidencia`,
+    `  ${C.b}/pi:99-fix${C.r}      Auto-corregir hallazgos`,
+    `  ${C.b}/pi:99-version${C.r}  Mostrar version`,
+    `  ${C.b}/pi:99-ayuda${C.r}    Mostrar todos los comandos`,
+    `${C.y}  ───────────────────────────────────────${C.r}`,
+  ].join("\n");
+}
+
+function buildAyudaText(v: string): string {
+  return [
+    `# Orquestador SDD/TDD v${v}`,
     "",
-    "FLUJO PRINCIPAL",
-    "/pi:01-init     Iniciar el flujo SDD/TDD",
-    "/pi:02-discover Relevar el proyecto",
-    "/pi:03-propose  Redactar propuesta",
-    "/pi:04-spec     Especificar requisitos",
-    "/pi:05-design   Disenar arquitectura",
-    "/pi:06-tasks    Planificar tareas",
-    "/pi:07-apply    Aplicar con TDD",
-    "/pi:08-verify   Verificar contra spec",
-    "/pi:09-review   Cerrar ciclo",
+    "## FLUJO PRINCIPAL",
+    "| Comando | Descripcion |",
+    "| --- | --- |",
+    "| \`/pi:01-init\` | Iniciar el flujo SDD/TDD |",
+    "| \`/pi:02-discover\` | Relevar el proyecto |",
+    "| \`/pi:03-propose\` | Redactar propuesta |",
+    "| \`/pi:04-spec\` | Especificar requisitos |",
+    "| \`/pi:05-design\` | Disenar arquitectura |",
+    "| \`/pi:06-tasks\` | Planificar tareas |",
+    "| \`/pi:07-apply\` | Aplicar con TDD |",
+    "| \`/pi:08-verify\` | Verificar contra spec |",
+    "| \`/pi:09-review\` | Cerrar ciclo |",
     "",
-    "AUXILIARES",
-    "/pi:99-doctor   Diagnosticar el proyecto",
-    "/pi:99-migrate  Preparar convenciones",
-    "/pi:99-report   Generar evidencia",
-    "/pi:99-fix      Auto-corregir hallazgos",
-    "/pi:99-version  Mostrar version",
-    "/pi:99-ayuda    Mostrar esta ayuda",
+    "## AUXILIARES",
+    "| Comando | Descripcion |",
+    "| --- | --- |",
+    "| \`/pi:99-doctor\` | Diagnosticar el proyecto |",
+    "| \`/pi:99-migrate\` | Preparar convenciones |",
+    "| \`/pi:99-report\` | Generar evidencia |",
+    "| \`/pi:99-fix\` | Auto-corregir hallazgos |",
+    "| \`/pi:99-version\` | Mostrar version |",
+    "| \`/pi:99-ayuda\` | Mostrar esta ayuda |",
     "",
   ].join("\n");
 }
