@@ -112,11 +112,25 @@ const COMMANDS: CommandDefinition[] = [
 
 export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   const lines = [
-    "┌─────────────────────────────────────────────┐",
-    `│  Orquestador SDD/TDD  v${ORCHESTRATOR_VERSION.padEnd(14)}│`,
-    "│  /pi:01-init ... /pi:09-review             │",
-    "│  /pi:99-doctor /pi:99-fix /pi:99-report    │",
-    "└─────────────────────────────────────────────┘",
+    `╔══════════════════════════════════════════════════╗`,
+    `║  Orquestador SDD/TDD  v${ORCHESTRATOR_VERSION.padEnd(31)}║`,
+    `╠══════════════════════════════════════════════════╣`,
+    `║  /pi:01-init    Iniciar el flujo SDD/TDD        ║`,
+    `║  /pi:02-discover  Relevar el proyecto            ║`,
+    `║  /pi:03-propose   Redactar propuesta              ║`,
+    `║  /pi:04-spec      Especificar requisitos          ║`,
+    `║  /pi:05-design    Disenar arquitectura            ║`,
+    `║  /pi:06-tasks     Planificar tareas               ║`,
+    `║  /pi:07-apply     Aplicar con TDD                 ║`,
+    `║  /pi:08-verify    Verificar contra spec           ║`,
+    `║  /pi:09-review    Cerrar ciclo                    ║`,
+    `╠══════════════════════════════════════════════════╣`,
+    `║  /pi:99-doctor    Diagnosticar el proyecto        ║`,
+    `║  /pi:99-migrate   Preparar convenciones           ║`,
+    `║  /pi:99-report    Generar evidencia               ║`,
+    `║  /pi:99-fix       Auto-corregir hallazgos         ║`,
+    `║  /pi:99-version   Mostrar version                 ║`,
+    `╚══════════════════════════════════════════════════╝`,
   ];
   console.log(lines.join("\n"));
 
