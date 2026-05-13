@@ -54,9 +54,9 @@ function testWorkflowAdvancementIsIdempotent(): void {
     advanceWorkflowStep(step, projectRoot);
   }
 
-  advanceWorkflowStep("06-tasks", projectRoot);
+  advanceWorkflowStep("09-review", projectRoot);
   const metadata = readProjectMetadata(projectRoot);
-  assert.equal(metadata?.currentStep, "06-tasks");
+  assert.equal(metadata?.currentStep, "09-review");
   assert.deepEqual(metadata?.completedSteps, WORKFLOW_STEPS satisfies WorkflowStep[]);
 }
 

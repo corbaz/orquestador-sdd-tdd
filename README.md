@@ -36,25 +36,27 @@ bun run check
 
 No hace falta publicar con npm para usarlo con Pi. El mecanismo de uso es `pi install`.
 
-## Flujo MVP 1
+## Flujo completo
 
 ```text
-/pi:01-init
-/pi:02-discover
-/pi:03-propose
-/pi:04-spec
-/pi:05-design
-/pi:06-tasks
+/pi:01-init      → Inicializar proyecto
+/pi:02-discover  → Relevar estado actual
+/pi:03-propose   → Redactar propuesta
+/pi:04-spec      → Especificar requisitos
+/pi:05-design    → Disenar arquitectura
+/pi:06-tasks     → Planificar tareas
+/pi:07-apply     → Aplicar con TDD
+/pi:08-verify    → Verificar contra spec
+/pi:09-review    → Cerrar ciclo
 ```
 
-## Mantenimiento MVP 2
-
-MVP 2 agrega un comando de diagnostico fuera del flujo numerado:
+## Comandos auxiliares
 
 ```text
-/pi:99-doctor
-/pi:99-migrate
-/pi:99-report
+/pi:99-doctor    → Diagnosticar y mantener
+/pi:99-migrate   → Preparar convenciones
+/pi:99-report    → Generar evidencia
+/pi:99-fix       → Auto-corregir hallazgos
 ```
 
 `/pi:99-doctor` revisa el proyecto actual, no avanza pasos SDD y aplica solo mantenimiento seguro del orquestador. Por ahora asegura entradas locales de `.gitignore` para `.pi/` y `.DS_Store`, y reporta metadata y artefactos SDD esperados.
@@ -85,4 +87,4 @@ Local por proyecto:
 <project>/.pi/orquestador-sdd-tdd/project.sqlite
 ```
 
-En MVP 1 se crean rutas, schema SQL y metadata. Los archivos `.sqlite` son placeholders: el adapter SQLite real queda fuera de MVP1 y reservado para la siguiente etapa.
+SQLite esta disponible como adapter opcional. `openProjectDatabase()` y `initProjectDatabase()` en `extensions/lib/persistence.ts` habilitan persistencia real cuando el proyecto lo requiere.

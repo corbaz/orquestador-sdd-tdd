@@ -27,22 +27,18 @@ SQL generado:
 <project>/.pi/orquestador-sdd-tdd/schema.sql
 ```
 
-## Contrato MVP1
+## SQLite adapter
 
-El helper `ensurePersistenceFiles()` crea directorios, placeholders `.sqlite`, SQL inicial y metadata local. No abre SQLite directamente: en MVP1 no hay adapter SQLite real para evitar sumar una dependencia nativa.
+SQLite esta disponible como adapter opcional. Los archivos `.sqlite` se crean como placeholders por `ensurePersistenceFiles()`. Para activar persistencia real:
 
-## Mantenimiento MVP2
+```ts
+import { initProjectDatabase } from "../extensions/lib/persistence.ts";
 
-El orquestador tambien puede asegurar ignores locales seguros en repositorios Git. La lista inicial es:
-
-```gitignore
-.pi/
-.DS_Store
+const db = initProjectDatabase(projectRoot);
+db.run("INSERT INTO workflow_events (project_root, step, event_type) VALUES (?, ?, ?)", [projectRoot, "01-init", "applied"]);
 ```
 
-Esto evita que el estado operativo del orquestador y metadatos comunes del sistema operativo aparezcan como cambios productivos del proyecto.
-
-`/pi:99-doctor` puede aplicar estas entradas en el proyecto actual sin avanzar el flujo SDD.
+`openProjectDatabase()` devuelve `null` si el archivo `.sqlite` esta vacio o no existe; `initProjectDatabase()` crea o fuerza la base de datos y ejecuta el schema SQL.
 
 ## Schema inicial
 

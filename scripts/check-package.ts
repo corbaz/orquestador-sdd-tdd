@@ -21,7 +21,11 @@ const requiredCommands = [
   "pi:04-spec",
   "pi:05-design",
   "pi:06-tasks",
+  "pi:07-apply",
+  "pi:08-verify",
+  "pi:09-review",
   "pi:99-doctor",
+  "pi:99-fix",
   "pi:99-migrate",
   "pi:99-report",
 ];

@@ -9,9 +9,11 @@ import {
   ensurePersistenceFiles,
   readProjectMetadata,
   runProjectDoctor,
+  runProjectFix,
   runProjectMigration,
   runProjectValidationReport,
   type ProjectDoctorReport,
+  type ProjectFixReport,
   type ProjectMigrationReport,
   type ProjectValidationReport,
   type WorkflowStep,
@@ -72,8 +74,32 @@ const COMMANDS: CommandDefinition[] = [
     command: "pi:06-tasks",
     description: "Divide el diseno en tareas concretas para aplicar con TDD cuando corresponda.",
     body: "Genera una lista ordenada de tareas, dependencias, validaciones y limites de revision.",
-    next: "Siguiente paso: aplicar las tareas en lotes pequenos y verificar.",
+    next: "Siguiente paso: /pi:07-apply para aplicar las tareas con TDD en lotes pequenos.",
     prompt: "Descompone el diseno en tareas implementables con checks de validacion, dependencias y forecast de tamano de revision.",
+  },
+  {
+    step: "07-apply",
+    command: "pi:07-apply",
+    description: "Aplica las tareas con TDD en lotes pequenos y verifica cada paso.",
+    body: "Implementa las tareas generadas en /pi:06-tasks, priorizando TDD y manteniendo trazabilidad con requisitos.",
+    next: "Siguiente paso: /pi:08-verify para verificar el resultado contra la especificacion.",
+    prompt: "Ejecuta las tareas del proyecto actual en orden, aplicando TDD. Revisa la especificacion, implementa, y documenta cada tarea completada. No saltes pasos de verificacion.",
+  },
+  {
+    step: "08-verify",
+    command: "pi:08-verify",
+    description: "Verifica el resultado contra la especificacion SDD y los criterios de aceptacion.",
+    body: "Revisa que el comportamiento implementado cumple los requisitos y escenarios definidos en /pi:04-spec.",
+    next: "Siguiente paso: /pi:09-review para cerrar el ciclo y generar evidencia final.",
+    prompt: "Verifica cada requisito y escenario de la especificacion contra el codigo/resultado actual. Documenta hallazgos, aprobaciones e incumplimientos.",
+  },
+  {
+    step: "09-review",
+    command: "pi:09-review",
+    description: "Cierra el ciclo SDD generando evidencia final y resumen de validacion.",
+    body: "Consolida los resultados de apply y verify en un reporte final versionable.",
+    next: "Siguiente paso: el ciclo esta completo. Revisa docs/sdd/ para los artefactos finales.",
+    prompt: "Genera un cierre del ciclo SDD con resumen de tareas aplicadas, verificacion de requisitos, evidencia de tests y recomendaciones finales. No introduzcas cambios nuevos.",
   },
 ];
 
@@ -149,6 +175,22 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       sendGuidance(
         pi,
         "Resume el reporte de /pi:99-report en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
+        message,
+      );
+    },
+  });
+
+  pi.registerCommand("pi:99-fix", {
+    description: "Aplica correcciones guiadas a hallazgos del doctor.",
+    handler: async (_args: string, ctx: any) => {
+      const projectRoot = ctx?.cwd ?? process.cwd();
+      const report = runProjectFix(projectRoot);
+      const message = buildFixMessage(report);
+
+      ctx?.ui?.notify?.("Correcciones guiadas ejecutadas. Revisa el reporte.", "info");
+      sendGuidance(
+        pi,
+        "Resume el reporte de /pi:99-fix en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
         message,
       );
     },
@@ -257,6 +299,28 @@ function formatAgentsAction(action: ProjectMigrationReport["agentsAction"]): str
   if (action === "created") return "creado";
   if (action === "updated") return "actualizado";
   return "sin cambios necesarios";
+}
+
+function buildFixMessage(report: ProjectFixReport): string {
+  const fixLines = report.fixedIssues.map((issue) => `- FIXED [${issue.code}]: ${issue.message}`);
+  const warnLines = report.unfixedWarnings.map((issue) => `- PENDIENTE [${issue.code}]: ${issue.message}`);
+
+  return [
+    "# pi:99-fix",
+    "",
+    "Correcciones guiadas aplicadas.",
+    "",
+    ...(fixLines.length > 0 ? fixLines : ["- Sin correcciones automaticas disponibles."]),
+    "",
+    ...(warnLines.length > 0
+      ? ["Hallazgos que requieren atencion manual:", ...warnLines]
+      : ["- Sin hallazgos pendientes."]),
+    "",
+    "Siguiente paso:",
+    "- Revisar los cambios aplicados.",
+    "- /pi:99-fix no avanza pasos del flujo SDD/TDD.",
+    "",
+  ].join("\n");
 }
 
 function buildValidationReportMessage(report: ProjectValidationReport): string {

@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.5.0 - Orquestador completo
+
+Ciclo SDD/TDD completo desde init hasta cierre.
+
+### Incluye
+
+- Flujo completo `/pi:01-init` a `/pi:09-review`.
+  - `/pi:07-apply` → aplicar tareas con TDD
+  - `/pi:08-verify` → verificar contra especificacion
+  - `/pi:09-review` → cerrar ciclo
+- Comando `/pi:99-fix` para auto-correccion guiada de artefactos faltantes.
+- SQLite real como adapter opcional via `initProjectDatabase()`.
+- Tests actualizados para workflow de 9 pasos.
+
 ## 1.2.0 - CI remoto
 
 Agrega validacion automatica en GitHub para cada push y PR.

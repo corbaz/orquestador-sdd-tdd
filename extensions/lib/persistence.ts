@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { Database } from "bun:sqlite";
 import {
   getGlobalDatabasePath,
   getGlobalSchemaPath,
@@ -17,7 +18,10 @@ export type WorkflowStep =
   | "03-propose"
   | "04-spec"
   | "05-design"
-  | "06-tasks";
+  | "06-tasks"
+  | "07-apply"
+  | "08-verify"
+  | "09-review";
 
 export type ProjectMetadata = {
   packageId: string;
@@ -34,6 +38,9 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   "04-spec",
   "05-design",
   "06-tasks",
+  "07-apply",
+  "08-verify",
+  "09-review",
 ];
 
 export const DEFAULT_GITIGNORE_ENTRIES = [".pi/", ".DS_Store"];
@@ -43,6 +50,9 @@ export const SDD_ARTIFACTS: { step: WorkflowStep; path: string; label: string }[
   { step: "04-spec", path: "docs/sdd/04-especificacion.md", label: "Especificacion SDD" },
   { step: "05-design", path: "docs/sdd/05-diseno.md", label: "Diseno tecnico" },
   { step: "06-tasks", path: "docs/sdd/06-tareas.md", label: "Tareas SDD/TDD" },
+  { step: "07-apply", path: "docs/sdd/07-aplicacion.md", label: "Registro de aplicacion" },
+  { step: "08-verify", path: "docs/sdd/08-verificacion.md", label: "Informe de verificacion" },
+  { step: "09-review", path: "docs/sdd/09-cierre.md", label: "Cierre de ciclo" },
 ];
 
 export type ProjectDoctorIssue = {
@@ -89,6 +99,17 @@ export type ProjectMigrationReport = {
   agentsPath: string;
   agentsAction: "created" | "updated" | "unchanged";
   doctor: ProjectDoctorReport;
+};
+
+export type ProjectFixReport = {
+  projectRoot: string;
+  fixedIssues: ProjectDoctorIssue[];
+  unfixedWarnings: ProjectDoctorIssue[];
+  createdArtifacts: string[];
+};
+
+export type ProjectFixer = {
+  run(projectRoot: string): ProjectFixReport;
 };
 
 export type ProjectValidationReport = {
@@ -213,6 +234,42 @@ export function createEmptyMetadata(projectRoot = process.cwd()): ProjectMetadat
   };
 }
 
+export function openProjectDatabase(projectRoot = process.cwd()): Database | null {
+  const dbPath = getLocalDatabasePath(projectRoot);
+  const schemaPath = getLocalSchemaPath(projectRoot);
+
+  if (!fs.existsSync(dbPath) || fs.statSync(dbPath).size === 0) return null;
+
+  try {
+    const db = new Database(dbPath);
+    if (fs.existsSync(schemaPath)) {
+      const schema = fs.readFileSync(schemaPath, "utf8");
+      if (schema.trim()) db.run(schema);
+    }
+    return db;
+  } catch {
+    return null;
+  }
+}
+
+export function initProjectDatabase(projectRoot = process.cwd(), force = false): Database {
+  const dbPath = getLocalDatabasePath(projectRoot);
+  const schemaPath = getLocalSchemaPath(projectRoot);
+
+  if (force && fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+
+  const db = new Database(dbPath);
+  db.run("PRAGMA journal_mode=WAL");
+  db.run("PRAGMA foreign_keys=ON");
+
+  if (fs.existsSync(schemaPath)) {
+    const schema = fs.readFileSync(schemaPath, "utf8");
+    if (schema.trim()) db.run(schema);
+  }
+
+  return db;
+}
+
 export function runProjectDoctor(projectRoot = process.cwd()): ProjectDoctorReport {
   const gitRoot = findGitRoot(projectRoot);
   const gitignoreResult = gitRoot ? ensureGitignoreEntries(gitRoot, DEFAULT_GITIGNORE_ENTRIES) : null;
@@ -263,6 +320,54 @@ export function runProjectMigration(projectRoot = process.cwd()): ProjectMigrati
     agentsAction: agentsResult.action,
     doctor,
   };
+}
+
+export function runProjectFix(projectRoot = process.cwd()): ProjectFixReport {
+  const doctor = runProjectDoctor(projectRoot);
+  const fixedIssues: ProjectDoctorIssue[] = [];
+  const unfixedWarnings: ProjectDoctorIssue[] = [];
+  const createdArtifacts: string[] = [];
+
+  for (const issue of doctor.issues) {
+    if (issue.severity === "fixed") {
+      fixedIssues.push(issue);
+      continue;
+    }
+
+    if (issue.code === "sdd-artifact-missing") {
+      const artifact = SDD_ARTIFACTS.find((a) => doctor.sddArtifacts.some((da) => da.path === a.path && da.required && !da.exists));
+      if (artifact) {
+        const filePath = path.join(projectRoot, artifact.path);
+        if (!fs.existsSync(filePath)) {
+          fs.mkdirSync(path.dirname(filePath), { recursive: true });
+          fs.writeFileSync(filePath, buildArtifactTemplate(artifact), "utf8");
+          createdArtifacts.push(artifact.path);
+          fixedIssues.push({
+            severity: "fixed",
+            code: "artifact-created",
+            message: `Se creo ${artifact.path} con plantilla inicial para ${artifact.step}.`,
+          });
+        }
+        continue;
+      }
+    }
+
+    if (issue.severity === "warning" || issue.severity === "error") {
+      unfixedWarnings.push(issue);
+    }
+  }
+
+  return { projectRoot, fixedIssues, unfixedWarnings, createdArtifacts };
+}
+
+function buildArtifactTemplate(artifact: { step: string; label: string }): string {
+  const headers: Record<string, string> = {
+    "07-apply": `# ${artifact.label}\n\n## Tareas aplicadas\n\n- [ ] \n\n## Evidencia\n\n`,
+    "08-verify": `# ${artifact.label}\n\n## Requisitos verificados\n\n| Requisito | Estado | Evidencia |\n| --- | --- | --- |\n\n`,
+    "09-review": `# ${artifact.label}\n\n## Resumen\n\n## Resultados\n\n## Recomendaciones\n\n`,
+  };
+
+  return headers[artifact.step] ?? `# ${artifact.label}\n\nAutomatically generated by /pi:99-fix.\n\n`;
 }
 
 export function runProjectValidationReport(projectRoot = process.cwd()): ProjectValidationReport {
