@@ -112,40 +112,8 @@ const COMMANDS: CommandDefinition[] = [
 
 export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   const v = ORCHESTRATOR_VERSION;
-  const C = {
-    reset: "\x1b[0m",
-    cyan: "\x1b[36m",
-    green: "\x1b[32m",
-    blue: "\x1b[34m",
-    gray: "\x1b[90m",
-    bold: "\x1b[1m",
-  };
-  const G = (s: string) => `${C.green}${s}${C.reset}`;
-  const B = (s: string) => `${C.blue}${s}${C.reset}`;
-  console.log("");
-  console.log(`${C.gray}  ───────────────────────────────────────${C.reset}`);
-  console.log(`  ${C.cyan}${C.bold}Orquestador SDD/TDD v${v}${C.reset}`);
-  console.log(`${C.gray}  ───────────────────────────────────────${C.reset}`);
-  console.log(`  ${C.cyan}FLUJO PRINCIPAL${C.reset}`);
-  console.log(`  ${C.gray}───────────────${C.reset}`);
-  console.log(`  ${G("/pi:01-init")}     Iniciar el flujo SDD/TDD`);
-  console.log(`  ${G("/pi:02-discover")} Relevar el proyecto`);
-  console.log(`  ${G("/pi:03-propose")}  Redactar propuesta`);
-  console.log(`  ${G("/pi:04-spec")}     Especificar requisitos`);
-  console.log(`  ${G("/pi:05-design")}   Disenar arquitectura`);
-  console.log(`  ${G("/pi:06-tasks")}    Planificar tareas`);
-  console.log(`  ${G("/pi:07-apply")}    Aplicar con TDD`);
-  console.log(`  ${G("/pi:08-verify")}   Verificar contra spec`);
-  console.log(`  ${G("/pi:09-review")}   Cerrar ciclo`);
-  console.log(`  ${C.gray}───────────────────────────────────────${C.reset}`);
-  console.log(`  ${C.cyan}AUXILIARES${C.reset}`);
-  console.log(`  ${C.gray}──────────${C.reset}`);
-  console.log(`  ${B("/pi:99-doctor")}  Diagnosticar el proyecto`);
-  console.log(`  ${B("/pi:99-migrate")} Preparar convenciones`);
-  console.log(`  ${B("/pi:99-report")}  Generar evidencia`);
-  console.log(`  ${B("/pi:99-fix")}     Auto-corregir hallazgos`);
-  console.log(`  ${B("/pi:99-version")} Mostrar version`);
-  console.log(`${C.gray}  ───────────────────────────────────────${C.reset}`);
+  console.log(buildBannerText(v));
+  console.log("  💡 Recordá todos los comandos con: /pi:99-ayuda");
   console.log("");
 
   registerProtectSecretsHook(pi);
@@ -269,19 +237,69 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       sendGuidance(pi, message, message);
     },
   });
+
+  pi.registerCommand("pi:99-ayuda", {
+    description: "Muestra todos los comandos del orquestador.",
+    handler: async (_args: string, ctx: any) => {
+      const message = buildBannerText(ORCHESTRATOR_VERSION);
+      ctx?.ui?.notify?.("Comandos del orquestador:", "info");
+      sendGuidance(pi, message, message);
+    },
+  });
+}
+
+function buildBannerText(v: string): string {
+  return [
+    `Orquestador SDD/TDD v${v}`,
+    "",
+    "FLUJO PRINCIPAL",
+    "/pi:01-init     Iniciar el flujo SDD/TDD",
+    "/pi:02-discover Relevar el proyecto",
+    "/pi:03-propose  Redactar propuesta",
+    "/pi:04-spec     Especificar requisitos",
+    "/pi:05-design   Disenar arquitectura",
+    "/pi:06-tasks    Planificar tareas",
+    "/pi:07-apply    Aplicar con TDD",
+    "/pi:08-verify   Verificar contra spec",
+    "/pi:09-review   Cerrar ciclo",
+    "",
+    "AUXILIARES",
+    "/pi:99-doctor   Diagnosticar el proyecto",
+    "/pi:99-migrate  Preparar convenciones",
+    "/pi:99-report   Generar evidencia",
+    "/pi:99-fix      Auto-corregir hallazgos",
+    "/pi:99-version  Mostrar version",
+    "/pi:99-ayuda    Mostrar esta ayuda",
+    "",
+  ].join("\n");
 }
 
 function buildGuideMessage(definition: CommandDefinition, completedSteps: WorkflowStep[]): string {
+  const resumenes: Record<string, string> = {
+    "01-init": "Se inicializo el flujo y se prepararon las convenciones del proyecto.",
+    "02-discover": "Se relevo la estructura, tecnologias, riesgos y estado actual del proyecto.",
+    "03-propose": "Se definio el problema, objetivo, alcance y riesgos del cambio.",
+    "04-spec": "Se escribieron los requisitos MUST/SHOULD y escenarios de validacion.",
+    "05-design": "Se documentaron componentes, contratos y decisiones de arquitectura.",
+    "06-tasks": "Se dividio el trabajo en tareas implementables con TDD.",
+    "07-apply": "Se aplicaron las tareas con TDD en lotes pequenos.",
+    "08-verify": "Se verifico el resultado contra la especificacion.",
+    "09-review": "Se cerro el ciclo con evidencia final.",
+  };
+  const resumen = resumenes[definition.step] ?? "";
+
   return [
     `# ${definition.command}`,
     "",
     definition.description,
     "",
-    `Que hace: ${definition.body}`,
+    `✅ Que hiciste en este paso: ${resumen}`,
     "",
-    definition.next,
+    `➡️ ${definition.next}`,
     "",
-    `Pasos completados: ${completedSteps.map((step) => `/pi:${step}`).join(", ") || "ninguno"}`,
+    `📋 Pasos completados: ${completedSteps.map((step) => `/pi:${step}`).join(", ") || "ninguno"}`,
+    "",
+    "💡 Para recordar todos los comandos, ejecuta: /pi:99-ayuda",
     "",
     "Guia para el agente:",
     definition.prompt,
