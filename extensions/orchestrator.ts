@@ -326,6 +326,7 @@ function buildBannerText(v: string, root?: string): string {
     `  ${C.b}/pi:99-fix${C.r}      Auto-corregir hallazgos`,
     `  ${C.b}/pi:99-version${C.r}  Mostrar version`,
     `  ${C.b}/pi:99-ayuda${C.r}    Mostrar todos los comandos`,
+    `  ${C.b}/pi:99-blanquear${C.r} Limpiar estado y arrancar de nuevo`,
     `${C.y}  ───────────────────────────────────────────────${C.r}`,
   ].join("\n");
 }

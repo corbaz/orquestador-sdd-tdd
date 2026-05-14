@@ -162,6 +162,8 @@ El estado del flujo se guarda en `.pi/orquestador-sdd-tdd/metadata.json`.
 | `/pi:99-report` | Al finalizar un ciclo | Genera `docs/sdd/99-reporte-validacion.md` |
 | `/pi:99-fix` | Cuando el doctor encuentra faltantes | Corrige automaticamente artefactos SDD faltantes |
 | `/pi:99-version` | En cualquier momento | Muestra la version instalada del orquestador |
+| `/pi:99-ayuda` | En cualquier momento | Muestra todos los comandos con descripciones |
+| `/pi:99-blanquear` | Para arrancar de nuevo | Limpia el estado del orquestador en el proyecto actual |
 
 **Importante**: los comandos auxiliares no avanzan el flujo. No reemplazan `/pi:01-init` a `/pi:09-review`.
 
