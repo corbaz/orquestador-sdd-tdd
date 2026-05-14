@@ -1,4 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { execSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -303,19 +304,18 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
     handler: async (_args: string, ctx: any) => {
       ctx?.ui?.notify?.("Actualizando orquestador...", "info");
       try {
-        const proc = Bun.spawnSync(["pi", "update", "git:github.com/corbaz/orquestador-sdd-tdd"], {
-          cwd: process.cwd(),
+        const output = execSync("pi update git:github.com/corbaz/orquestador-sdd-tdd", {
+          encoding: "utf8",
+          timeout: 60000,
         });
-        const stdout = proc.stdout.toString().trim();
-        const stderr = proc.stderr.toString().trim();
-        const success = proc.exitCode === 0;
         sendGuidance(
           pi,
-          success ? `Orquestador actualizado. Resumen: ${stdout.slice(0, 500)}` : `Error al actualizar: ${stderr.slice(0, 500)}`,
-          `## pi:99-update\n\n${success ? "✅ Orquestador actualizado correctamente." : "❌ Error al actualizar."}\n\n\`\`\`\n${(success ? stdout : stderr).slice(0, 1000)}\n\`\`\`\n\nPara aplicar los cambios, sali y volve a entrar a Pi.`,
+          `Orquestador actualizado. ${output.slice(0, 500)}`,
+          `## pi:99-update\n\n✅ Orquestador actualizado correctamente.\n\n\`\`\`\n${output.slice(0, 1000)}\n\`\`\`\n\nSali y volve a entrar a Pi para aplicar los cambios.`,
         );
       } catch (err) {
-        sendGuidance(pi, `Error: ${String(err)}`, `## pi:99-update\n\n❌ Error: ${String(err).slice(0, 500)}`);
+        const msg = err instanceof Error ? err.message.slice(0, 500) : String(err).slice(0, 500);
+        sendGuidance(pi, `Error: ${msg}`, `## pi:99-update\n\n❌ Error: ${msg}`);
       }
     },
   });
