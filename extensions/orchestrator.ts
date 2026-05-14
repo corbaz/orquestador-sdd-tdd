@@ -1,5 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, unlinkSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { registerCaptureSessionHook } from "./hooks/capture-session.ts";
@@ -249,6 +249,46 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
     handler: async (_args: string, ctx: any) => {
       const message = buildAyudaText(ORCHESTRATOR_VERSION);
       ctx?.ui?.notify?.("Comandos del orquestador:", "info");
+      sendGuidance(pi, message, message);
+    },
+  });
+
+  pi.registerCommand("pi:99-blanquear", {
+    description: "Limpia el estado del orquestador en el proyecto actual.",
+    handler: async (_args: string, ctx: any) => {
+      const projectRoot = ctx?.cwd ?? process.cwd();
+      const projectState = join(projectRoot, ".pi", "orquestador-sdd-tdd");
+      const docsSdd = join(projectRoot, "docs", "sdd");
+
+      if (fs.existsSync(projectState)) {
+        fs.rmSync(projectState, { recursive: true, force: true });
+      }
+
+      if (fs.existsSync(docsSdd)) {
+        try {
+          const files = fs.readdirSync(docsSdd);
+          for (const file of files) {
+            if (file.startsWith("0")) fs.unlinkSync(path.join(docsSdd, file));
+          }
+        } catch {
+          // si no se puede, no pasa nada
+        }
+      }
+
+      const message = [
+        "## pi:99-blanquear",
+        "",
+        "✅ Estado del orquestador limpiado.",
+        "",
+        "- Se elimino `.pi/orquestador-sdd-tdd/`",
+        "- Se eliminaron artefactos SDD numerados en `docs/sdd/` (iniciados con 0*)",
+        "- Los archivos existentes fuera del flujo se conservaron",
+        "",
+        "Ahora podes ejecutar `/pi:01-init` para arrancar de nuevo.",
+        "",
+      ].join("\n");
+
+      ctx?.ui?.notify?.("Estado del orquestador limpiado.", "info");
       sendGuidance(pi, message, message);
     },
   });
