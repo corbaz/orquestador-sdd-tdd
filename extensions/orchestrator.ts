@@ -356,6 +356,7 @@ function buildAyudaText(v: string): string {
     "| \`/pi:99-fix\` | Auto-corregir hallazgos |",
     "| \`/pi:99-version\` | Mostrar version |",
     "| \`/pi:99-ayuda\` | Mostrar esta ayuda |",
+    "| \`/pi:99-blanquear\` | Limpiar estado y arrancar de nuevo |",
     "",
   ].join("\n");
 }
