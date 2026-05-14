@@ -7,3 +7,4 @@ doc/
 *.sqlite-wal
 node_modules/
 dist/
+.pi/

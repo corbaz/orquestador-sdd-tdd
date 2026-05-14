@@ -42,7 +42,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Pregunta cual es el objetivo del cambio y prepara el proyecto.",
     body: "Pregunta al usuario el objetivo del cambio y prepara el estado local del orquestador.",
     next: "Siguiente paso: /pi:02-discover para relevar el proyecto y sus restricciones.",
-    prompt: "Actua como orquestador SDD/TDD. Inicializa el flujo. PREGUNTA al usuario: '¿Cual es el objetivo de este cambio?' Espera su respuesta y registrala. Luego explica que el proximo paso es /pi:02-discover para relevar el proyecto.",
+    prompt: "Actua como orquestador SDD/TDD. Inicializa el flujo. Analiza el proyecto actual (no el codigo del orquestador). PREGUNTA al usuario: '¿Cual es el objetivo de este cambio?' Espera su respuesta y registrala. Luego explica que el proximo paso es /pi:02-discover para relevar el proyecto.",
   },
   {
     step: "02-discover",
@@ -50,7 +50,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Analiza el codigo y muestra al usuario lo que encontro.",
     body: "Releva estructura, tecnologias, riesgos, convenciones y estado actual del proyecto sin modificar codigo.",
     next: "Siguiente paso: /pi:03-propose para redactar una propuesta acotada.",
-    prompt: "Ejecuta discovery del proyecto. PREGUNTA al usuario: '¿Que cambio queres hacer?' si no lo definio antes. Releva estructura, comandos, riesgos, convenciones y estado actual. No implementes todavia. Al final, PREGUNTA: '¿Que objetivo concreto tiene este cambio?' y espera la respuesta antes de continuar.",
+    prompt: "Ejecuta discovery del proyecto actual (no el codigo del orquestador). PREGUNTA al usuario: '¿Que cambio queres hacer?' si no lo definio antes. Releva estructura, comandos, riesgos, convenciones y estado actual. No implementes todavia. Al final, PREGUNTA: '¿Que objetivo concreto tiene este cambio?' y espera la respuesta antes de continuar.",
   },
   {
     step: "03-propose",
@@ -58,7 +58,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Pregunta problema, alcance y riesgos uno por uno y escribe la propuesta.",
     body: "Convierte el discovery en una propuesta con problema, objetivo, alcance, riesgos y validacion.",
     next: "Siguiente paso: /pi:04-spec para definir requisitos y escenarios verificables.",
-    prompt: "Redacta una propuesta SDD. NO muestres el discovery ni preguntes si esta bien (eso ya se hizo en /pi:02-discover). Arranca directo: PRIMERO preguntale al usuario 'Para este cambio, ¿cual es el problema concreto que estamos resolviendo?' PROPONELE un ejemplo basado en el codigo que ya leiste. Espera su respuesta, despues preguntale '¿El objetivo es correcto?' y proponé. Segui asi con cada seccion: problema, objetivo, alcance, fuera de alcance, riesgos, validacion. Siempre proponé primero basado en el codigo, despues preguntá '¿Esta bien? ¿Queres cambiar algo?'. Al final mostra el resumen y preguntá '¿Queres modificar, agregar o quitar algo?' hasta que diga 'listo'.",
+    prompt: "Redacta una propuesta SDD para el proyecto actual (no el orquestador). NO muestres el discovery ni preguntes si esta bien (eso ya se hizo en /pi:02-discover). Arranca directo: PRIMERO preguntale al usuario 'Para este cambio, ¿cual es el problema concreto que estamos resolviendo?' PROPONELE un ejemplo basado en el proyecto actual que ya analizaste. Espera su respuesta, despues preguntale '¿El objetivo es correcto?' y proponé. Segui asi con cada seccion: problema, objetivo, alcance, fuera de alcance, riesgos, validacion. Siempre proponé primero basado en el proyecto, despues preguntá '¿Esta bien? ¿Queres cambiar algo?'. Al final mostra el resumen y preguntá '¿Queres modificar, agregar o quitar algo?' hasta que diga 'listo'.",
   },
   {
     step: "04-spec",
@@ -66,7 +66,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Pregunta requisitos MUST/SHOULD y escenarios, y escribe la especificacion.",
     body: "Define comportamiento observable con requisitos obligatorios, deseables y escenarios de validacion.",
     next: "Siguiente paso: /pi:05-design para decidir la arquitectura de implementacion.",
-    prompt: "PRIMERO: mostrale al usuario la propuesta actual de docs/sdd/ y preguntale: '¿Esta propuesta esta completa para vos? ¿Queres modificar algo o agregar algo mas?' Si el usuario quiere cambios, ayudalo a modificar la propuesta iterando hasta que diga 'listo' o 'dale'. RECIEN DESPUES de su confirmacion, empeza a escribir la especificacion SDD. Para cada seccion usa el termino en ingles con su traduccion entre parentesis, ej: MUST (obligatorio), SHOULD (deseable). Para escenarios usa 'Dado que / Cuando / Entonces' en vez de 'Given/When/Then' para que sea mas claro en espanol. Para cada MUST, SHOULD y escenario: PRIMERO mostra tus propuestas basadas en el codigo con frases tipo 'Esto es lo que propongo segun el proyecto:' y lista tus ejemplos concretos. DESPUES pregunta '¿Agregamos este? ¿Queres modificarlo o proponer otro?' Itera hasta que confirme. Al final preguntale si quiere agregar mas.",
+    prompt: "Trabaja sobre el proyecto actual, no el orquestador. PRIMERO: mostrale al usuario la propuesta de docs/sdd/ y preguntale: '¿Esta propuesta esta completa para vos? ¿Queres modificar algo o agregar algo mas?' Si el usuario quiere cambios, ayudalo a modificar la propuesta iterando hasta que diga 'listo' o 'dale'. RECIEN DESPUES de su confirmacion, empeza a escribir la especificacion SDD. Para cada seccion usa el termino en ingles con su traduccion entre parentesis, ej: MUST (obligatorio), SHOULD (deseable). Para escenarios usa 'Dado que / Cuando / Entonces' en vez de 'Given/When/Then' para que sea mas claro en espanol. Para cada MUST, SHOULD y escenario: PRIMERO mostra tus propuestas basadas en el proyecto actual con frases tipo 'Esto es lo que propongo segun el proyecto:' y lista tus ejemplos concretos. DESPUES pregunta '¿Agregamos este? ¿Queres modificarlo o proponer otro?' Itera hasta que confirme. Al final preguntale si quiere agregar mas.",
   },
   {
     step: "05-design",
@@ -74,7 +74,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Pregunta decisiones tecnicas y escribe el diseno de arquitectura.",
     body: "Documenta componentes, contratos, decisiones de arquitectura, testing y riesgos tecnicos.",
     next: "Siguiente paso: /pi:06-tasks para partir el trabajo en tareas implementables.",
-    prompt: "PRIMERO: mostra al usuario la especificacion actual y preguntale: '¿La especificacion esta completa? ¿Queres revisar o agregar algo antes de pasar al diseno?' Si pide cambios, ayudalo a modificar la especificacion. RECIEN DESPUES de su confirmacion, empeza el diseno. PROPONE cada decision basandote en el codigo existente. Por ejemplo: 'El frontend usa TanStack Router, el backend Hono, el editor se integraria en la pagina de plantillas. ¿Te parece bien este enfoque?' No preguntes en blanco. Para cada tema (componentes afectados, decisiones de arquitectura, contratos, testing, riesgos), proponé ejemplos concretos del proyecto, preguntá si esta bien, iterá hasta confirmar.",
+    prompt: "Trabaja sobre el proyecto actual, no el orquestador. PRIMERO: mostra al usuario la especificacion actual y preguntale: '¿La especificacion esta completa? ¿Queres revisar o agregar algo antes de pasar al diseno?' Si pide cambios, ayudalo a modificar la especificacion. RECIEN DESPUES de su confirmacion, empeza el diseno. PROPONE cada decision basandote en el proyecto actual. Por ejemplo: 'El frontend usa X, el backend Y, el editor se integraria en Z. ¿Te parece bien este enfoque?' No preguntes en blanco. Para cada tema (componentes afectados, decisiones de arquitectura, contratos, testing, riesgos), proponé ejemplos concretos del proyecto, preguntá si esta bien, iterá hasta confirmar.",
   },
   {
     step: "06-tasks",
@@ -82,7 +82,7 @@ const COMMANDS: CommandDefinition[] = [
     description: "Pregunta el orden y genera tareas implementables con TDD.",
     body: "Divide el diseno en tareas ordenadas con dependencias, validaciones y estimaciones.",
     next: "Siguiente paso: /pi:07-apply para aplicar las tareas con TDD en lotes pequenos.",
-    prompt: "PRIMERO: mostra al usuario el diseno actual y preguntale: '¿El diseno esta completo? ¿Queres modificar algo antes de pasar a tareas?' Si pide cambios, ayudalo. RECIEN DESPUES de su confirmacion, genera las tareas. PREGUNTA: 1) '¿En que orden preferis implementar las tareas?' 2) '¿Cual es el tamano maximo de revision que te sentis comodo?' 3) '¿Preferis TDD estricto o aplicacion primero?' Genera las tareas con dependencias, validaciones y forecast. Muestra el resultado y pregunta si quiere ajustar algo.",
+    prompt: "Trabaja sobre el proyecto actual, no el orquestador. PRIMERO: mostra al usuario el diseno actual y preguntale: '¿El diseno esta completo? ¿Queres modificar algo antes de pasar a tareas?' Si pide cambios, ayudalo. RECIEN DESPUES de su confirmacion, genera las tareas. PREGUNTA: 1) '¿En que orden preferis implementar las tareas?' 2) '¿Cual es el tamano maximo de revision que te sentis comodo?' 3) '¿Preferis TDD estricto o aplicacion primero?' Genera las tareas con dependencias, validaciones y forecast. Muestra el resultado y pregunta si quiere ajustar algo.",
   },
   {
     step: "07-apply",
@@ -139,7 +139,12 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
         const message = buildGuideMessage(definition, updated.completedSteps);
 
         ctx?.ui?.notify?.(`${definition.description} ${definition.next}`, "info");
-        sendGuidance(pi, definition.prompt, message);
+        if (typeof pi.sendMessage === "function") {
+          pi.sendMessage({ customType: "orquestador-sdd-tdd", content: message, display: true });
+        }
+        if (typeof pi.sendUserMessage === "function") {
+          pi.sendUserMessage(definition.prompt);
+        }
       },
     });
   }
@@ -328,20 +333,15 @@ function buildGuideMessage(definition: CommandDefinition, completedSteps: Workfl
   const resumen = resumenes[definition.step] ?? "";
 
   return [
-    `# ${definition.command}`,
+    `## ${definition.command}`,
     "",
-    definition.description,
-    "",
-    `✅ Que hiciste en este paso: ${resumen}`,
+    `✅ ${resumen}`,
     "",
     `➡️ ${definition.next}`,
     "",
     `📋 Pasos completados: ${completedSteps.map((step) => `/pi:${step}`).join(", ") || "ninguno"}`,
     "",
-    "💡 Para recordar todos los comandos, ejecuta: /pi:99-ayuda",
-    "",
-    "Guia para el agente:",
-    definition.prompt,
+    "💡 Ejecuta \`/pi:99-ayuda\` para ver todos los comandos.",
     "",
   ].join("\n");
 }
