@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.2 - 
+
+### Commits
+
+0829265 fix: minimal ux - silent agent and short messages
+
 ## 1.15.1 - 
 
 ### Commits
