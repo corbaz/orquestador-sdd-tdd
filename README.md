@@ -164,6 +164,7 @@ El estado del flujo se guarda en `.pi/orquestador-sdd-tdd/metadata.json`.
 | `/pi:99-version` | En cualquier momento | Muestra la version instalada del orquestador |
 | `/pi:99-ayuda` | En cualquier momento | Muestra todos los comandos con descripciones |
 | `/pi:99-blanquear` | Para arrancar de nuevo | Limpia el estado del orquestador en el proyecto actual |
+| `/pi:99-update` | En cualquier momento | Actualiza el orquestador desde GitHub sin salir de Pi |
 
 **Importante**: los comandos auxiliares no avanzan el flujo. No reemplazan `/pi:01-init` a `/pi:09-review`.
 

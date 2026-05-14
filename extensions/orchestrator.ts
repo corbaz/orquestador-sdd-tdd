@@ -297,6 +297,28 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       sendGuidance(pi, message, message);
     },
   });
+
+  pi.registerCommand("pi:99-update", {
+    description: "Actualiza el orquestador a la ultima version desde GitHub.",
+    handler: async (_args: string, ctx: any) => {
+      ctx?.ui?.notify?.("Actualizando orquestador...", "info");
+      try {
+        const proc = Bun.spawnSync(["pi", "update", "git:github.com/corbaz/orquestador-sdd-tdd"], {
+          cwd: process.cwd(),
+        });
+        const stdout = proc.stdout.toString().trim();
+        const stderr = proc.stderr.toString().trim();
+        const success = proc.exitCode === 0;
+        sendGuidance(
+          pi,
+          success ? `Orquestador actualizado. Resumen: ${stdout.slice(0, 500)}` : `Error al actualizar: ${stderr.slice(0, 500)}`,
+          `## pi:99-update\n\n${success ? "✅ Orquestador actualizado correctamente." : "❌ Error al actualizar."}\n\n\`\`\`\n${(success ? stdout : stderr).slice(0, 1000)}\n\`\`\`\n\nPara aplicar los cambios, sali y volve a entrar a Pi.`,
+        );
+      } catch (err) {
+        sendGuidance(pi, `Error: ${String(err)}`, `## pi:99-update\n\n❌ Error: ${String(err).slice(0, 500)}`);
+      }
+    },
+  });
 }
 
 function buildBannerText(v: string, root?: string): string {
@@ -332,6 +354,7 @@ function buildBannerText(v: string, root?: string): string {
     `  ${C.b}/pi:99-version${C.r}  Mostrar version`,
     `  ${C.b}/pi:99-ayuda${C.r}    Mostrar todos los comandos`,
     `  ${C.b}/pi:99-blanquear${C.r} Limpiar estado y arrancar de nuevo`,
+    `  ${C.b}/pi:99-update${C.r}   Actualizar orquestador desde GitHub`,
     `${C.y}  ───────────────────────────────────────────────${C.r}`,
   ].join("\n");
 }
@@ -363,6 +386,7 @@ function buildAyudaText(v: string): string {
     "| \`/pi:99-version\` | Mostrar version |",
     "| \`/pi:99-ayuda\` | Mostrar esta ayuda |",
     "| \`/pi:99-blanquear\` | Limpiar estado y arrancar de nuevo |",
+    "| \`/pi:99-update\` | Actualizar orquestador desde GitHub |",
     "",
   ].join("\n");
 }

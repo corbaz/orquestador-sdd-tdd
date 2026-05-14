@@ -31,6 +31,7 @@ const requiredCommands = [
   "pi:99-version",
   "pi:99-ayuda",
   "pi:99-blanquear",
+  "pi:99-update",
 ];
 
 const failures: string[] = [];
