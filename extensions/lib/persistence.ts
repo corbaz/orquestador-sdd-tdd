@@ -205,7 +205,7 @@ export function readProjectMetadata(projectRoot = process.cwd()): ProjectMetadat
       projectRoot: parsed.projectRoot ?? projectRoot,
       currentStep: parsed.currentStep ?? null,
       completedSteps: Array.isArray(parsed.completedSteps) ? parsed.completedSteps : [],
-      updatedAt: parsed.updatedAt ?? new Date().toISOString(),
+      updatedAt: parsed.updatedAt ?? nowBsAs(),
     };
   } catch {
     return null;
@@ -225,6 +225,12 @@ export function canRunWorkflowStep(step: WorkflowStep, metadata: ProjectMetadata
   return metadata.completedSteps.includes(expectedPrevious);
 }
 
+export function nowBsAs(): string {
+  const d = new Date();
+  const bsAs = new Date(d.getTime() - 3 * 60 * 60 * 1000);
+  return bsAs.toISOString().replace("Z", "-03:00");
+}
+
 export function advanceWorkflowStep(step: WorkflowStep, projectRoot = process.cwd()): ProjectMetadata {
   const metadata = readProjectMetadata(projectRoot) ?? createEmptyMetadata(projectRoot);
   const completedSteps = new Set(metadata.completedSteps);
@@ -236,7 +242,7 @@ export function advanceWorkflowStep(step: WorkflowStep, projectRoot = process.cw
     ...metadata,
     currentStep: nextStep,
     completedSteps: [...completedSteps],
-    updatedAt: new Date().toISOString(),
+    updatedAt: nowBsAs(),
   };
   writeProjectMetadata(updated, projectRoot);
   return updated;
@@ -248,7 +254,7 @@ export function createEmptyMetadata(projectRoot = process.cwd()): ProjectMetadat
     projectRoot,
     currentStep: null,
     completedSteps: [],
-    updatedAt: new Date().toISOString(),
+    updatedAt: nowBsAs(),
   };
 }
 
