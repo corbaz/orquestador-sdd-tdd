@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.13.0 - 
+
+### Commits
+
+115a4bb feat: show current directory on startup
+
 ## 1.12.3 - 
 
 ### Commits
