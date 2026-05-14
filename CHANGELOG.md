@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.0 - 
+
+### Commits
+
+18b2930 feat: add update command within pi
+
 ## 1.14.5 - 
 
 ### Commits
