@@ -1,5 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { existsSync, readFileSync, readdirSync, unlinkSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { registerCaptureSessionHook } from "./hooks/capture-session.ts";
@@ -260,15 +260,15 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       const projectState = join(projectRoot, ".pi", "orquestador-sdd-tdd");
       const docsSdd = join(projectRoot, "docs", "sdd");
 
-      if (fs.existsSync(projectState)) {
-        fs.rmSync(projectState, { recursive: true, force: true });
+      if (existsSync(projectState)) {
+        rmSync(projectState, { recursive: true, force: true });
       }
 
-      if (fs.existsSync(docsSdd)) {
+      if (existsSync(docsSdd)) {
         try {
-          const files = fs.readdirSync(docsSdd);
+          const files = readdirSync(docsSdd);
           for (const file of files) {
-            if (file.startsWith("0")) fs.unlinkSync(path.join(docsSdd, file));
+            if (file.startsWith("0")) rmSync(join(docsSdd, file));
           }
         } catch {
           // si no se puede, no pasa nada
