@@ -177,7 +177,7 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       ctx?.ui?.notify?.("Migracion segura del orquestador ejecutada. Revisa el reporte.", "info");
       sendGuidance(
         pi,
-        "Resume el reporte de /pi:99-migrate en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
+        "Resumen breve de /pi:99-migrate. Solo decile al usuario si hubo cambios o no. Trabaja en SIGILO.",
         message,
       );
     },
@@ -193,7 +193,7 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       ctx?.ui?.notify?.("Reporte de validacion generado. Revisa docs/sdd/99-reporte-validacion.md.", "info");
       sendGuidance(
         pi,
-        "Resume el reporte de /pi:99-report en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
+        "Resumen breve de /pi:99-report. Decile al usuario el estado final (apto/revisar/bloqueado) y donde se guardo el archivo. Trabaja en SIGILO.",
         message,
       );
     },
@@ -209,7 +209,7 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       ctx?.ui?.notify?.("Correcciones guiadas ejecutadas. Revisa el reporte.", "info");
       sendGuidance(
         pi,
-        "Resume el reporte de /pi:99-fix en espanol. No avances el flujo SDD salvo pedido explicito del usuario.",
+        "Resumen breve de /pi:99-fix. Solo decile al usuario que se corrigio y si queda algo pendiente. Trabaja en SIGILO.",
         message,
       );
     },
