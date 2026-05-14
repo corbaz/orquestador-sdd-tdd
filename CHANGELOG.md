@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.2 - 
+
+### Commits
+
+22d9864 docs: add blanquear to banner, readme
+
 ## 1.14.1 - 
 
 ### Commits
