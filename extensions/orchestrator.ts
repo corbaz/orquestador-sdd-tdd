@@ -112,7 +112,8 @@ const COMMANDS: CommandDefinition[] = [
 
 export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   const v = ORCHESTRATOR_VERSION;
-  console.log(buildBannerText(v));
+  const projectRoot = process.cwd();
+  console.log(buildBannerText(v, projectRoot));
   console.log("  💡 Recordá todos los comandos con: /pi:99-ayuda");
   console.log("");
 
@@ -253,7 +254,7 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
   });
 }
 
-function buildBannerText(v: string): string {
+function buildBannerText(v: string, root?: string): string {
   const C: Record<string, string> = {
     r: "\x1b[0m",
     c: "\x1b[36m",
@@ -263,9 +264,10 @@ function buildBannerText(v: string): string {
     B: "\x1b[1m",
   };
   return [
-    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `${C.y}  ───────────────────────────────────────────────${C.r}`,
     `  ${C.c}${C.B}Orquestador SDD/TDD v${v}${C.r}`,
-    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `  ${C.y}Directorio: ${root ?? process.cwd()}${C.r}`,
+    `${C.y}  ───────────────────────────────────────────────${C.r}`,
     `  ${C.c}FLUJO PRINCIPAL${C.r}`,
     `  ${C.g}/pi:01-init${C.r}     Iniciar el flujo SDD/TDD`,
     `  ${C.g}/pi:02-discover${C.r} Relevar el proyecto`,
@@ -276,7 +278,7 @@ function buildBannerText(v: string): string {
     `  ${C.g}/pi:07-apply${C.r}    Aplicar con TDD`,
     `  ${C.g}/pi:08-verify${C.r}   Verificar contra spec`,
     `  ${C.g}/pi:09-review${C.r}   Cerrar ciclo`,
-    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `${C.y}  ───────────────────────────────────────────────${C.r}`,
     `  ${C.c}AUXILIARES${C.r}`,
     `  ${C.b}/pi:99-doctor${C.r}   Diagnosticar el proyecto`,
     `  ${C.b}/pi:99-migrate${C.r}  Preparar convenciones`,
@@ -284,7 +286,7 @@ function buildBannerText(v: string): string {
     `  ${C.b}/pi:99-fix${C.r}      Auto-corregir hallazgos`,
     `  ${C.b}/pi:99-version${C.r}  Mostrar version`,
     `  ${C.b}/pi:99-ayuda${C.r}    Mostrar todos los comandos`,
-    `${C.y}  ───────────────────────────────────────${C.r}`,
+    `${C.y}  ───────────────────────────────────────────────${C.r}`,
   ].join("\n");
 }
 
