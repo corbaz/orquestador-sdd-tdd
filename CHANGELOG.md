@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.4 - 
+
+### Commits
+
+29e3c65 fix: use buenos aires timezone, improve blanquear
+
 ## 1.14.3 - 
 
 ### Commits
