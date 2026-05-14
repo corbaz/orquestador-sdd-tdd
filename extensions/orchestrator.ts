@@ -259,39 +259,41 @@ export default function registerOrquestadorSddTdd(pi: ExtensionAPI): void {
       const projectRoot = ctx?.cwd ?? process.cwd();
       const projectState = join(projectRoot, ".pi", "orquestador-sdd-tdd");
       const docsSdd = join(projectRoot, "docs", "sdd");
+      const lines: string[] = [];
 
-      if (existsSync(projectState)) {
+      const borrado = existsSync(projectState);
+      if (borrado) {
         rmSync(projectState, { recursive: true, force: true });
       }
+      const sigueEstando = existsSync(projectState);
+      lines.push(`- ${borrado ? "Borrado" : "No existe"}: .pi/orquestador-sdd-tdd/ (${sigueEstando ? "aun existe" : "eliminado"})`);
 
-      if (existsSync(docsSdd)) {
+      const docsFiles = existsSync(docsSdd) ? readdirSync(docsSdd).filter((f) => f.startsWith("0")) : [];
+      let docsBorrados = 0;
+      for (const file of docsFiles) {
         try {
-          const files = readdirSync(docsSdd);
-          for (const file of files) {
-            if (file.startsWith("0")) rmSync(join(docsSdd, file));
-          }
+          rmSync(join(docsSdd, file));
+          docsBorrados++;
         } catch {
-          // si no se puede, no pasa nada
+          lines.push(`- No se pudo borrar: docs/sdd/${file} (archivo en uso?)`);
         }
+      }
+      if (docsFiles.length > 0 && docsBorrados === docsFiles.length) {
+        lines.push(`- Borrados ${docsBorrados} artefactos SDD`);
+      } else if (docsFiles.length === 0) {
+        lines.push("- No habia artefactos SDD para borrar");
       }
 
       const message = [
         "## pi:99-blanquear",
         "",
-        "✅ Estado del orquestador limpiado.",
+        ...lines,
         "",
-        "- Se elimino `.pi/orquestador-sdd-tdd/`",
-        "- Se eliminaron artefactos SDD numerados en `docs/sdd/` (iniciados con 0*)",
-        "",
-        "⚠️  Si ejecutas cualquier comando del flujo (`/pi:01-init` en adelante), Pi",
-        "   puede recrear automaticamente el estado. Para mantenerlo limpio,",
-        "   no ejecutes ningun comando hasta que quieras arrancar de nuevo.",
-        "",
-        "Ahora podes ejecutar `/pi:01-init` para arrancar de nuevo.",
+        "Para arrancar de nuevo ejecuta `/pi:01-init`.",
         "",
       ].join("\n");
 
-      ctx?.ui?.notify?.("Estado del orquestador limpiado.", "info");
+      ctx?.ui?.notify?.(borrado || docsBorrados > 0 ? "Estado limpiado." : "No habia nada que limpiar.", "info");
       sendGuidance(pi, message, message);
     },
   });
