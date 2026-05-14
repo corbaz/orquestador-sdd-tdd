@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.1 - 
+
+### Commits
+
+615ab64 fix: add blanquear to help table
+
 ## 1.14.0 - 
 
 ### Commits
