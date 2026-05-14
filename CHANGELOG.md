@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.5 - 
+
+### Commits
+
+bcb21f5 fix: blanquear reports actual state
+
 ## 1.14.4 - 
 
 ### Commits
