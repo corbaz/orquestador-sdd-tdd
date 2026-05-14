@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.3 - 
+
+### Commits
+
+d750474 fix: cleaner ux - hide agent prompt from user
+
 ## 1.12.2 - 
 
 ### Commits
