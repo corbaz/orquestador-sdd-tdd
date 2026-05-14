@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.14.0 - 
+
+### Commits
+
+339bee7 feat: add reset command
+
 ## 1.13.0 - 
 
 ### Commits
