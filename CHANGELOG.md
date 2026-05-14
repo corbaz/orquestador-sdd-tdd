@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.1 - 
+
+### Commits
+
+6b55c72 fix: use node execSync instead of Bun
+
 ## 1.15.0 - 
 
 ### Commits
