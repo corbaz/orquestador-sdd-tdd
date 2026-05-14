@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.15.3 - 
+
+### Commits
+
+6b00e11 fix: silent mode for all aux commands
+
 ## 1.15.2 - 
 
 ### Commits
