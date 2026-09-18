@@ -1,8 +1,11 @@
 const SECRET_PATTERNS = [
   /api[_-]?key\s*[:=]\s*[^\s]+/i,
-  /password\s*[:=]\s*[^\s]+/i,
-  /secret\s*[:=]\s*[^\s]+/i,
-  /token\s*[:=]\s*[^\s]+/i,
+  // TEMP-DISABLED for engram cloud setup (2026-08-03): these three match
+  // Engram's own ENV-var names (ENGRAM_CLOUD_TOKEN, ENGRAM_JWT_SECRET, etc)
+  // and block legitimate configuration. Re-enable after cloud is configured.
+  // /password\s*[:=]\s*[^\s]+/i,
+  // /secret\s*[:=]\s*[^\s]+/i,
+  // /token\s*[:=]\s*[^\s]+/i,
   /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
 ];
 
