@@ -9,7 +9,8 @@ Version de referencia: `1.2.0`.
 En el repo del orquestador:
 
 ```bash
-bun run check
+bun check
+bun run validate
 ```
 
 En el proyecto objetivo:
@@ -22,7 +23,7 @@ En el proyecto objetivo:
 
 Resultado esperado:
 
-- `bun run check` termina sin errores.
+- `bun check` y `bun run validate` terminan sin errores.
 - `/pi:99-doctor` no reporta issues `ERROR`.
 - Los artefactos SDD requeridos por los pasos completados existen.
 - Los requisitos `MUST` aparecen cubiertos en diseno y tareas.
@@ -43,13 +44,16 @@ Resultado esperado:
 
 ## Pruebas del paquete
 
-`bun run check` ejecuta:
+`bun check` ejecuta directamente el type-checker nativo de Bun.
+
+`bun run validate` ejecuta las validaciones funcionales del paquete:
 
 | Script | Que valida |
 | --- | --- |
 | `check:package` | Manifest Pi, comandos, skills y build del entrypoint. |
 | `test:doctor` | Mantenimiento, migracion, coherencia SDD y conflictos de alcance. |
 | `test:workflow` | Persistencia inicial, orden de pasos e idempotencia del avance. |
+| `check:version` | Coherencia entre la version del paquete y el ultimo tag de Git. |
 
 ## Que no cubre todavia
 

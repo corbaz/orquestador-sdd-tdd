@@ -12,7 +12,7 @@
 
 - **Estado**: ✅ primera mejora — skills `sdd-apply`, `sdd-verify`, `sdd-review` agregadas (para `/pi:07-09`).
 - **Pendiente para próximos ciclos**: skills 07/08/09 más detalladas, prompts/docs por paso, hooks de verificación automática, más comandos `99-*`.
-- **Recordatorio**: en el repo del orquestador, `bun run check` antes de publicar.
+- **Recordatorio**: en el repo del orquestador, `bun check` y `bun run validate` antes de publicar.
 
 ## Skill playwright-cli (navegador para Pi) — completado ✅
 

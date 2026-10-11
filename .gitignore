@@ -8,3 +8,9 @@ doc/
 node_modules/
 dist/
 .pi/
+
+# graphify-axet
+.graphify/
+
+# skill-registry auto-generado (gentle-ai)
+.atl/

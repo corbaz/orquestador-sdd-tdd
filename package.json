@@ -3,16 +3,16 @@
   "version": "1.16.0",
   "description": "Paquete global de Pi para guiar un flujo SDD/TDD con comandos, skills y hooks.",
   "type": "module",
-  "packageManager": "bun@1.3.14",
+  "packageManager": "bun@1.4.3",
   "private": false,
   "scripts": {
-    "check": "bun run check:package && bun run test:doctor && bun run test:workflow && bun run check:version",
     "check:package": "bun scripts/check-package.ts",
     "check:version": "bun scripts/check-version.ts",
     "install-hooks": "cp scripts/pre-push-hook.sh .git/hooks/pre-push && chmod +x .git/hooks/pre-push",
     "release": "bun scripts/release.ts",
     "test:doctor": "bun scripts/test-doctor.ts",
-    "test:workflow": "bun scripts/test-workflow.ts"
+    "test:workflow": "bun scripts/test-workflow.ts",
+    "validate": "bun run check:package && bun run test:doctor && bun run test:workflow && bun run check:version"
   },
   "keywords": [
     "pi-package",
@@ -40,5 +40,8 @@
     "skills": [
       "./skills"
     ]
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.2"
   }
 }

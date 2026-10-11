@@ -74,7 +74,7 @@ Esto evita que una actualizacion global modifique proyectos sin permiso.
 
 El orquestador queda listo para uso controlado cuando:
 
-- `bun run check` pasa en el repo principal.
+- `bun check` y `bun run validate` pasan en el repo principal.
 - `/pi:99-doctor` no reporta errores en el proyecto actual.
 - Los pasos completados tienen sus artefactos SDD esperados.
 - Los requisitos `MUST` aparecen cubiertos por diseno y tareas.

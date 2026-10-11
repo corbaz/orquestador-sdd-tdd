@@ -12,15 +12,17 @@ import {
   PACKAGE_ID,
 } from "./paths.ts";
 
-let SQLiteDatabase: new (path: string) => {
+type SQLiteDatabaseConstructor = new (path: string) => {
   run(sql: string, ...params: unknown[]): unknown;
   close(): void;
   query(sql: string, ...params: unknown[]): { all(): unknown[] };
-} | null = null;
+};
+
+let SQLiteDatabase: SQLiteDatabaseConstructor | null = null;
 
 try {
   const _require = createRequire(import.meta.url);
-  const sqlite = _require("bun:sqlite") as { Database: new (path: string) => { run(sql: string, ...params: unknown[]): unknown; close(): void; query(sql: string, ...params: unknown[]): { all(): unknown[] } } };
+  const sqlite = _require("bun:sqlite") as { Database: SQLiteDatabaseConstructor };
   SQLiteDatabase = sqlite.Database;
 } catch {
   // bun:sqlite no disponible fuera de Bun
@@ -524,7 +526,7 @@ function buildAgentsManagedBlock(): string {
     "- Usar `/pi:99-doctor` para diagnostico, mantenimiento seguro y coherencia entre fases.",
     "- Guardar artefactos SDD versionables en `docs/sdd/`.",
     "- No editar manualmente `.pi/orquestador-sdd-tdd/` salvo mantenimiento deliberado.",
-    "- Ejecutar `bun run check` en el repo del orquestador antes de publicar cambios del package.",
+    "- Ejecutar `bun check` y `bun run validate` en el repo del orquestador antes de publicar cambios del package.",
     AGENTS_MANAGED_END,
   ].join("\n");
 }

@@ -33,7 +33,8 @@ Los archivos de `prompts/` son referencia interna del repo. No se registran en e
 ## Desarrollo con Bun
 
 ```bash
-bun run check
+bun check
+bun run validate
 ```
 
 No usar `npm install -g` para instalar el orquestador. Esto es un Pi Package: se instala con `pi install`.
